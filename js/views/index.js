@@ -4,6 +4,11 @@ var Api = require('../actions/api');
 
 var Index = React.createClass({
     mixins: [Api],
+    componentWillMount: function(){
+        this.setState({
+            config: this.get_config()
+        });
+    },
     componentDidMount: function(){
         this.init();
     },
@@ -13,7 +18,25 @@ var Index = React.createClass({
 
         container.style.paddingBottom = (footer.clientHeight + 20) + 'px';
     },
+    pay: function(){
+        alert('prepay pay');
+        var that = this;
+        var config = that.state.config;
+        config['pay_type'] = 2;
+        config.caller = 'h5';
+        that.prepay(config, function(resp){
+            alert(JSON.stringify(resp));
+            if(resp.respcd === '0000'){
+                that.weixinpay(resp.data, function(data){
+                    console.log(data);
+                });
+            }else{
+                alert(resp.resperr)
+            }
+        });
+    },
     render: function(){
+        var that = this;
         return <div className="index">
             <div className="container" ref="container">
                 <div className="app-logo">
@@ -23,21 +46,13 @@ var Index = React.createClass({
                     <div className="label">
                         收款方:
                     </div>
-                    <span className="target">ONEAPM</span>
+                    <span className="target">{that.state.config.app_name || '没有获取到APP_NAME'}</span>
                 </div>
                 <div className="row">
                     <div className="label">
                         订单信息: 
                     </div>
-                    <span className="target">ONEAPM</span>
-                </div>
-                <div className="row">
-                    <div className="label"></div>
-                    <span className="target">2015-04-02</span>
-                </div>
-                <div className="row">
-                    <div className="label"></div>
-                    <span className="target">&yen; 20</span>
+                    <span className="target">{that.state.config.order_info || "没有得到订单信息"}</span>
                 </div>
             </div>
             <div className="footer" ref="footer">
@@ -51,9 +66,9 @@ var Index = React.createClass({
                 <p className="app-desc text-info">
                     每月均需手工在线支付
                 </p>
-                <Link className="btn btn-primary text-center alert-bar" to="cardbind">
+                <button className="btn btn-primary text-center alert-bar" onTouchStart={that.pay}>
                     微信支付
-                </Link>
+                </button>
             </div>
         </div>;
     }

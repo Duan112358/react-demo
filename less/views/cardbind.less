@@ -1,5 +1,4 @@
 .cardbind {
-    padding-top: 48px;
     .container{
         padding: 0 5%;
     }
@@ -32,7 +31,7 @@
     }
 
     .row{
-        margin-top: 10px;
+        margin: 10px auto 0 auto;
 
         &.select{
             margin-top: 0;
@@ -40,8 +39,14 @@
     }
 
     .label{
-        margin-top: 10px;
         color: #999;
+    }
+
+    .error{
+        color: red;
+        font-size: 13px;
+        text-align: center;
+        margin-top: 10px;
     }
 
     .target-input{
@@ -54,8 +59,50 @@
         line-height: 20px;
         height: 34px;
     }
+
+    .select .target{
+        position: relative;
+        padding-top: 10px;
+    }
+
+    .select .label{
+        line-height: 30px;
+    }
+
     .Select-control{
         width: 100%;
-        top: 12px;
+        overflow: hidden;
+    }
+
+    .btn{
+        font-size: 18px;
+        line-height: 48px;
+        letter-spacing: .2em;
+        display: block;
+        width: 90%;
+        margin: 10px auto;
+    }
+
+    .note{
+        font-size: 12px;
+        display: block;
+        text-align: center;
+    }
+    .row {
+        display: table;
+        vertical-align: middle;
+        .label {
+            vertical-align: middle;
+            display: table-cell;
+            color: rgb(85, 89, 92);
+            font-size: 14px;
+            width: 200px;
+        }
+        .target {
+            vertical-align: middle;
+            display: table-cell;
+            width: 70%;
+            color: @info;
+        }
     }
 }

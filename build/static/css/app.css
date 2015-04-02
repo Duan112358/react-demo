@@ -181,29 +181,26 @@ html[xmlns] .clearfix {
   bottom: 0;
   width: 100%;
 }
-.fixed-top {
-  position: fixed;
+.header {
   line-height: 48px;
   height: 48px;
   font-size: 18px;
   background-color: #00bbd2;
   width: 100%;
-  top: 0;
-  z-index: 100;
 }
-.fixed-top .back-link {
+.header .back-link {
   display: inline-block;
   overflow: hidden;
   float: left;
   line-height: 48px;
   height: 48px;
 }
-.fixed-top .back-link .back {
+.header .back-link .back {
   height: 24px;
   margin-top: 12px;
   margin-left: 12px;
 }
-.fixed-top .back-link ~ span {
+.header .back-link ~ span {
   margin-left: -30px;
   color: white;
 }
@@ -255,20 +252,6 @@ html[xmlns] .clearfix {
 }
 .table .table-cell.last {
   border-bottom: none;
-}
-.row {
-  display: block;
-}
-.row .label {
-  display: inline-block;
-  color: #55595c;
-  font-size: 14px;
-  width: 30%;
-}
-.row .target {
-  display: inline-block;
-  width: 70%;
-  color: #00bbd2;
 }
 .fade-enter {
   -webkit-animation: fadeIn 1s ease;
@@ -441,7 +424,7 @@ html[xmlns] .clearfix {
   border-top-color: #e6e6e6;
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
   box-sizing: border-box;
-  margin-top: -1px;
+  margin-top: -10px;
   max-height: 200px;
   position: absolute;
   top: 100%;
@@ -571,8 +554,20 @@ html[xmlns] .clearfix {
 .index .footer {
   margin-bottom: 10px;
 }
-.cardbind {
-  padding-top: 48px;
+.index .row {
+  display: table;
+  vertical-align: top;
+}
+.index .row .label {
+  display: table-cell;
+  color: #55595c;
+  font-size: 14px;
+  width: 200px;
+}
+.index .row .target {
+  display: table-cell;
+  width: 70%;
+  color: #00bbd2;
 }
 .cardbind .container {
   padding: 0 5%;
@@ -605,14 +600,19 @@ html[xmlns] .clearfix {
   color: #d1d1d1;
 }
 .cardbind .row {
-  margin-top: 10px;
+  margin: 10px auto 0 auto;
 }
 .cardbind .row.select {
   margin-top: 0;
 }
 .cardbind .label {
-  margin-top: 10px;
   color: #999;
+}
+.cardbind .error {
+  color: red;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 10px;
 }
 .cardbind .target-input {
   display: block;
@@ -624,7 +624,44 @@ html[xmlns] .clearfix {
   line-height: 20px;
   height: 34px;
 }
+.cardbind .select .target {
+  position: relative;
+  padding-top: 10px;
+}
+.cardbind .select .label {
+  line-height: 30px;
+}
 .cardbind .Select-control {
   width: 100%;
-  top: 12px;
+  overflow: hidden;
+}
+.cardbind .btn {
+  font-size: 18px;
+  line-height: 48px;
+  letter-spacing: .2em;
+  display: block;
+  width: 90%;
+  margin: 10px auto;
+}
+.cardbind .note {
+  font-size: 12px;
+  display: block;
+  text-align: center;
+}
+.cardbind .row {
+  display: table;
+  vertical-align: middle;
+}
+.cardbind .row .label {
+  vertical-align: middle;
+  display: table-cell;
+  color: #55595c;
+  font-size: 14px;
+  width: 200px;
+}
+.cardbind .row .target {
+  vertical-align: middle;
+  display: table-cell;
+  width: 70%;
+  color: #00bbd2;
 }

@@ -9,8 +9,8 @@ webpackJsonp([1],[
 
 	var routes = __webpack_require__(196);
 
-	React.initializeTouchEvents(true);
 	Router.run(routes, function (Handler) {
+	  React.initializeTouchEvents(true);
 	  React.render(React.createElement(Handler, null), document.body);
 	});
 
@@ -3350,6 +3350,11 @@ webpackJsonp([1],[
 
 	var Index = React.createClass({displayName: "Index",
 	    mixins: [Api],
+	    componentWillMount: function(){
+	        this.setState({
+	            config: this.get_config()
+	        });
+	    },
 	    componentDidMount: function(){
 	        this.init();
 	    },
@@ -3359,7 +3364,25 @@ webpackJsonp([1],[
 
 	        container.style.paddingBottom = (footer.clientHeight + 20) + 'px';
 	    },
+	    pay: function(){
+	        alert('prepay pay');
+	        var that = this;
+	        var config = that.state.config;
+	        config['pay_type'] = 2;
+	        config.caller = 'h5';
+	        that.prepay(config, function(resp){
+	            alert(JSON.stringify(resp));
+	            if(resp.respcd === '0000'){
+	                that.weixinpay(resp.data, function(data){
+	                    console.log(data);
+	                });
+	            }else{
+	                alert(resp.resperr)
+	            }
+	        });
+	    },
 	    render: function(){
+	        var that = this;
 	        return React.createElement("div", {className: "index"}, 
 	            React.createElement("div", {className: "container", ref: "container"}, 
 	                React.createElement("div", {className: "app-logo"}, 
@@ -3369,21 +3392,13 @@ webpackJsonp([1],[
 	                    React.createElement("div", {className: "label"}, 
 	                        "收款方:"
 	                    ), 
-	                    React.createElement("span", {className: "target"}, "ONEAPM")
+	                    React.createElement("span", {className: "target"}, that.state.config.app_name || '没有获取到APP_NAME')
 	                ), 
 	                React.createElement("div", {className: "row"}, 
 	                    React.createElement("div", {className: "label"}, 
 	                        "订单信息:" 
 	                    ), 
-	                    React.createElement("span", {className: "target"}, "ONEAPM")
-	                ), 
-	                React.createElement("div", {className: "row"}, 
-	                    React.createElement("div", {className: "label"}), 
-	                    React.createElement("span", {className: "target"}, "2015-04-02")
-	                ), 
-	                React.createElement("div", {className: "row"}, 
-	                    React.createElement("div", {className: "label"}), 
-	                    React.createElement("span", {className: "target"}, "¥ 20")
+	                    React.createElement("span", {className: "target"}, that.state.config.order_info || "没有得到订单信息")
 	                )
 	            ), 
 	            React.createElement("div", {className: "footer", ref: "footer"}, 
@@ -3397,7 +3412,7 @@ webpackJsonp([1],[
 	                React.createElement("p", {className: "app-desc text-info"}, 
 	                    "每月均需手工在线支付"
 	                ), 
-	                React.createElement(Link, {className: "btn btn-primary text-center alert-bar", to: "cardbind"}, 
+	                React.createElement("button", {className: "btn btn-primary text-center alert-bar", onTouchStart: that.pay}, 
 	                    "微信支付"
 	                )
 	            )
@@ -3419,94 +3434,68 @@ webpackJsonp([1],[
 	var request = __webpack_require__(199);
 	var store = __webpack_require__(202);
 
-	var datalist = [{
-	    avatar: '/static/img/avatar1.png',
-	    name: '陈军建',
-	    id: 123,
-	    orders_count: 3754,
-	    rating: 4.6,
-	    desc: '从业29年，经验丰富',
-	    detail: '陈师傅在地沟油界工作29年，有多年的地沟油采、榨、滤、销经验。',
-	    quota: '“只有你没想到的，没有我弄不到的。”',
-	    bg: '/static/img/bg1.png',
-	    product: {
-	        name: '绿色纯正地沟油',
-	        price: 0.1,
-	        img: '/static/img/p1.png',
-	        desc: '本品采集自华北高端餐厅残余食物，榨取每一滴油前，我们都会进行精心的筛选，只保留能榨油的部分，用心还原出绿色纯正地沟油，保证每一滴油的质量！'
-	    }
-	}, {
-	    avatar: '/static/img/avatar2.png',
-	    name: '呼延策',
-	    id: 23412,
-	    orders_count: 4216,
-	    rating: 4.5,
-	    desc: '食品安全高材生',
-	    detail: '呼延同学毕业于世界某知名大学食品安全专业，有多年地沟油提纯经验。',
-	    quota: '“愿每个人都能用上放心地沟油！”',
-	    bg: '/static/img/bg2.png',
-	    product: {
-	        name: '顶级初榨地沟油',
-	        price: 0.1,
-	        img: '/static/img/p2.png',
-	        desc: '本品采集自华北高端餐厅残余食物，榨取每一滴油前，我们都会进行精心的筛选，只保留能榨油的部分，用心还原出绿色纯正地沟油，保证每一滴油的质量！'
-	    }
-	}, {
-	    avatar: '/static/img/avatar3.png',
-	    name: '迪小玲',
-	    id: 3141,
-	    orders_count: 7899,
-	    rating: 4.8,
-	    desc: '精细打算有性价比',
-	    detail: '迪女士在地沟油界工作十余年，有丰富的采购经验，擅长成本控制。',
-	    quota: '“好油需要善于发现的眼睛。”',
-	    bg: '/static/img/bg3.png',
-	    product: {
-	        name: '有机健康地沟油',
-	        price: 0.1,
-	        img: '/static/img/p3.png',
-	        desc: '本品原料采集自一百余家合作餐厅，通过高级萃取技术和过滤技术，还原出每一滴油本来澄澈若水的模样，适合家庭或小型餐馆使用。'
-	    }
-	}, {
-	    avatar: '/static/img/avatar4.png',
-	    name: '吴赐仁',
-	    id: 521,
-	    orders_count: 9999,
-	    rating: 4.9,
-	    desc: '身份神秘，无油不打',
-	    detail: '吴先生参与地沟油国际贸易多年，经营涵盖从精品到大众品牌所有地沟油。',
-	    quota: '“出售92年拉非陈年地沟油，价格面议”',
-	    bg: '/static/img/bg4.png',
-	    product: {
-	        name: '原味调和地沟油',
-	        price: 0.1,
-	        img: '/static/img/p4.png',
-	        desc: '本品勾兑自吴先生经营的地沟油单品，既有顶级初榨产品的口感，同时也保持了较低的价位，适合大批量采购却又成本不足的客户，同时附赠会员'
-	    }
-	}];
+	var URLS = {
+	    // token, caller=web
+	    areacities: '/util/v1/areacities',
+	    // token, caller=web
+	    headbanks: '/util/v1/headbanks',
+	    // token, caller=web, cityid, headbankid
+	    branchbanks: '/util/v1/branchbanks',
+	    // token, caller=web, q={5,9}
+	    cardsinfo: '/util/v1/cardsinfo',
+	    prepay: '/subscription/v1/plan/pay',
+	    //card_user,card_no,idnumber,issuerbank,brchbank_name
+	    bindcard: '/subscription/v1/card/bind'
+	};
 
 	var Api = {
-	    urls: {
-	        login: '/wap/login',
-	        checkout: '/wap/checkout',
-	        wxConfig: '/wxconfig'
+	    _data: {
+	        caller: 'h5',
+	        token: 'a6700fd21c9f4ea79c226d507eb26ff4'
+	    },
+	    extend: function(data){
+	        data = data || {};
+	        data.caller = data.caller || this._data.caller;
+	        data.token = this._data.token;
+	        return data;
 	    },
 	    post: function(url, data, cb) {
 	        //data = JSON.stringify(data);
+	        var that = this;
 	        request.post(url)
 	            .send(data)
 	            .set('Content-Type', 'application/x-www-form-urlencoded')
 	            .set('Accept', 'application/json')
-	            .end(cb);
+	            .end(function(err, res){
+	                that._callback(err, res, cb);
+	            });
 	    },
-	    getlist: function(cb) {
-	        cb(datalist);
+	    _callback: function(err, res, cb){
+	        if(err){
+	            console.error(err);
+	        }else{
+	           cb(res.body); 
+	        }
 	    },
-	    checkout: function(data, cb) {
-	        this.post(this.urls.checkout, data, cb);
+	    get: function(url, data, cb){
+	        var that = this;
+	        request.get(url)
+	            .query(that.extend(data))
+	            .end(function(err, res){
+	                that._callback(err, res, cb);
+	            });
 	    },
-	    login: function(data, cb) {
-	        this.post(this.urls.login, data, cb);
+	    get_areacities: function(cb) {
+	        this.get(URLS.areacities, {}, cb); 
+	    },
+	    get_headbanks: function(cb) {
+	        this.get(URLS.headbanks, {}, cb); 
+	    },
+	    get_branchbanks: function(data, cb) {
+	        this.get(URLS.branchbanks, data, cb); 
+	    },
+	    get_cardsinfo: function(data, cb) {
+	        this.get(URLS.cardsinfo, data, cb); 
 	    },
 	    cache: function(key, value) {
 	        if (value) {
@@ -3519,51 +3508,41 @@ webpackJsonp([1],[
 	        var agent = navigator.userAgent.toLowerCase();
 	        return agent.indexOf('micromessenger') !== -1;
 	    },
-	    share: function(cb) {
+	    weixinpay: function(data, cb){
 	        var that = this;
-	        request.get(that.urls.wxConfig + '?url=' + window.location.href)
-	            .send({
-	                url: location.href
-	            })
-	            .end(function(err, res) {
-	                console.log(err, res);
-	                if (!err) {
-	                    var resp = JSON.parse(res.text);
-	                    if (resp.respcd == '0000') {
-	                        resp.data.jsApiList = [
-	                            'checkJsApi',
-	                            'onMenuShareTimeline',
-	                            'onMenuShareAppMessage',
-	                            'onMenuShareQQ',
-	                            'onMenuShareWeibo'
-	                        ];
-	                        console.log(resp.data);
-	                        if (window.wx) {
-	                            resp.data.debug = true;
-	                            wx.config(resp.data);
-	                            var share_data = {
-	                                title: '滴滴打油获BAT两亿美元巨额融资',
-	                                link: 'http://mp.weixin.qq.com/s?__biz=MzA4NTA3OTc2OA==&mid=203512253&idx=1&sn=c29b40813457751113d42f1afdec5d27&scene=1&key=0ce8fa93c80e41c517e785b3623377a804ca82810e48a1ff00c05143a5c95feaede45796256d7557512847a3bfba6af7&ascene=0&uin=MjgxMTg3ODQ2MQ%3D%3D&devicetype=iMac+MacBookPro10%2C2+OSX+OSX+10.10.2+build(14C109)&version=11020012&pass_ticket=72XuKLw7RYGoboF7uc2GikHOHHEWnQGmTtlLXia2Gzx6C%2FWRlUbgqBEqW%2FFVk9Gr',
-	                                desc: '滴滴打油豪掷1亿人民币叫板滴滴打车，以1毛1公升跳楼价让大家体验滴滴打油，直到滴滴打车停止补贴！',
-	                                imgUrl: location.host + '/static/img/dayou.jpg'
-	                            };
-
-	                            wx.ready(function() {
-	                                // 2. 分享接口
-	                                // 2.1 监听“分享给朋友”，按钮点击、自定义分享内容及分享结果接口
-	                                wx.onMenuShareAppMessage(share_data);
-	                                // 2.2 监听“分享到朋友圈”按钮点击、自定义分享内容及分享结果接口
-	                                wx.onMenuShareTimeline(share_data);
-	                                // 2.3 监听“分享到QQ”按钮点击、自定义分享内容及分享结果接口
-	                                wx.onMenuShareQQ(share_data);
-	                                // 2.4 监听“分享到微博”按钮点击、自定义分享内容及分享结果接口
-	                                wx.onMenuShareWeibo(share_data);
-	                            });
-	                        }
-	                    }
-
-	                }
-	            })
+	        if(!that.isweixin()){
+	            cb('请在微信中打开');
+	            return;
+	        }
+	        WeixinJSBridge.invoke('getBrandWCPayRequest',data.pay_params,function(res){
+	            if(res.err_msg == "get_brand_wcpay_request:ok"){
+	                cb({success: true, error: false});
+	            }else if(res.err_msg == "get_brand_wcpay_request:cancel") {
+	                that.close_window();
+	            }else{
+	                cb({error: '微信系统繁忙'});
+	            }
+	        });
+	    },
+	    close_window: function(){
+	        if(this.isweixin()){
+	            WeixinJSBridge.invoke('closeWindow', {}, function(res){});
+	        }else{
+	            window.close();
+	        }
+	    },
+	    prepay: function(data, cb){
+	        var that = this;
+	        that.post(URLS.prepay, data, cb);
+	    },
+	    get_config: function(){
+	       var config = document.head.querySelector('meta[name=config]').getAttribute('content'); 
+	       return JSON.parse(JSON.parse('"' + config + '"'));
+	    },
+	    bindcard: function(data, cb){
+	        var that = this;
+	        data.caller = 'h5';
+	        that.post(URLS.bindcard, that.extend(data), cb);
 	    }
 	};
 
@@ -3791,47 +3770,343 @@ webpackJsonp([1],[
 	    mixins: [Api, Navigation],
 	    componentDidMount: function(){
 	    },
+	    componentWillMount: function(){
+	        var that = this;
+	        that.get_areacities(function(resp){
+	            if(resp.respcd === '0000'){
+	                var provinces = resp.data.records.map(function(record){
+	                    return {
+	                        label: record.areaname,
+	                        value: record.areaid,
+	                        cities: that.mapper(record.cities, 'cityname', 'cityid') 
+	                    };
+	                });
+	                that.setState({
+	                    provinces: provinces
+	                });    
+	            }else{
+	                console.log(resp.resperr);
+	            } 
+	        });
+
+	        that.get_headbanks(function(resp){
+	            if(resp.respcd === '0000'){
+	                var headbanks = that.mapper(resp.data.records, 'headbankname', 'headbankid');
+	                that.setState({
+	                    headbanks: headbanks
+	                });
+	            }
+	        });
+	    },
+	    mapper: function(records, label, value){
+	        if(records.length){
+	            return records.map(function(record, index){
+	                return {
+	                    label: record[label],
+	                    value: value ? record[value] : index
+	                };
+	            });
+	        }
+	    },
+	    onSelectProvince: function(provinceId){
+	        var that = this;
+	        var province = that.state.provinces.filter(function(p){
+	            return p.value == provinceId;
+	        })[0];
+
+
+	        var cities = province.cities;
+	        that.setState({
+	            province: province,
+	            provinceError: false
+	        });
+	    },
+	    onSelectCity: function(cityid){
+	        var that = this;
+	        var city = that.state.province.cities.filter(function(c){
+	            return c.value == cityid;
+	        })[0];
+	        that.setState({
+	            city: city,
+	            cityError: false,
+	            showheadbanks: true
+	        });
+
+	        if(that.state.disableheadbank){
+	            that.get_branchbanks({
+	                cityid: city.value,
+	                headbankid: that.state.headbank.value
+	            }, function(resp){
+	                if(resp.respcd === '0000'){
+	                    that.setState({
+	                        branchbanks: that.mapper(resp.data.records, 'name')
+	                    });
+	                } 
+	            });
+	        }
+	    },
+	    onSelectHeadbank: function(headbankid){
+	        var that = this;
+	        var headbank = that.state.headbanks.filter(function(c){
+	            return c.value == headbankid;
+	        })[0];
+	        that.setState({
+	            headbank: headbank,
+	            headbankError: false
+	        });
+
+	        that.get_branchbanks({
+	            cityid: that.state.city.value,
+	            headbankid: headbank.value
+	        }, function(resp){
+	            if(resp.respcd === '0000'){
+	                that.setState({
+	                    branchbanks: that.mapper(resp.data.records, 'name')
+	                });
+	            } 
+	        });
+	    },
+	    changeIDNum: function(e){
+	        var target = e.target;
+	        var that = this;
+
+	        var value = target.value;
+
+	        if(value.length){
+	            if(value.length > 18){
+	                that.setState({
+	                    idnumError: '身份证号码格式不正确'
+	                });
+	                return;
+	            }
+	            if(!/^\d{0,}(X|x|\d)$/.test(value)){
+	                that.setState({
+	                    idnumError: '身份证号码格式不正确'
+	                });
+	                return;
+	            }
+	        }
+
+	        that.setState({
+	            idnum: value,
+	            idnumError: false
+	        });
+	    },
+	    changeBankAccount: function(e){
+	        var value = e.target.value;
+	        var target = {};
+	        var hasError = false;
+	        var that = this;
+
+	        if(value && value.length === 6){
+	            that.get_cardsinfo({
+	                q: value
+	            }, function(resp){
+	                if(resp.respcd === '0000'){
+	                    var records = resp.data.records;
+	                    if(records.length){
+	                        var headbank = records[0];
+	                        headbank.label = headbank.headbankname;
+	                        headbank.value = headbank.headbankid;
+	                        that.setState({
+	                            headbank: headbank,
+	                            showheadbanks: true,
+	                            disableheadbank: true,
+	                            headbankError: false,
+	                            headbankNotFoundError: false
+	                        });
+	                    }else{
+	                        that.setState({
+	                            headbankNotFoundError: '未找到相关银行,请输入正确的银行卡号',
+	                            headbankError: '未找到相关银行,请输入正确的银行卡号'
+	                        });
+	                    }
+	                }
+	            }) 
+	        }
+	        if(value && (!/^\d+$/.test(value) || value.length > 19)){
+	            target.bankaccountError = that.headbankNotFoundError || '请输入正确的银行卡号';
+	            hasError = true;
+	        }
+
+	        if(!hasError){
+	            target.bankaccountError = that.headbankNotFoundError || false;
+	        }
+
+	        target.bankaccount = value;
+	        that.setState(target);
+
+	    },
+	    onSelectBranchbank: function(branchbankId){
+	        var that = this;
+	        var branchbank = that.state.branchbanks.filter(function(c){
+	            return c.value == branchbankId;
+	        })[0];
+	        that.setState({
+	            branchbank: branchbank,
+	            branchbankError: false
+	        });
+	    },
+	    submit: function(){
+	        var that = this;   
+	        var hasError = false;
+	        var target = {};
+	        var state = that.state;
+
+	        if(!state.name){
+	           target.nameError = '姓名不能为空';
+	           hasError = true;
+	        }
+
+	        if(!state.idnum){
+	           target.idnumError = '身份证号不能为空';
+	           hasError = true;
+	        }else{
+	           var pattern = /^(\d{15}$|^\d{18}$|^\d{17}(\d|X|x))$/;
+	           if(!pattern.test(state.idnum)){
+	               target.idnumError = '身份证格式不正确';
+	               hasError = true;
+	           }
+	        }
+
+	        if(!state.bankaccount){
+	            target.bankaccountError = '银行卡号不能为空';
+	            hasError = true;
+	        }else{
+	            if(!/^\d{16,19}$/.test(state.bankaccount)){
+	                target.bankaccountError = '银行卡号格式不正确';
+	                hasError = true;
+	            }
+	        }
+
+	        if(!state.branchbank.label && state.headbank.label){
+	            target.branchbankError = '请选择支行';
+	            hasError = true;
+	        }
+
+	        if(hasError){
+	            that.setState(target);
+	            return;
+	        }
+
+	        that.bindcard({
+	            card_user: state.name,
+	            card_no: state.bankaccount,
+	            idnumber: state.idnum,
+	            issuerbank: state.headbank.label,
+	            brchbank_name: state.branchbank.label
+	        }, function(resp){
+	            if(resp.respcd === '0000'){
+	                var config = that.get_config();
+	                config.pay_type = 7;
+	                config.card_id = resp.data.card_id;
+	                that.prepay(config, function(data){
+	                   if(data.respcd === '0000'){
+	                        alert('银行卡代付支付绑定成功')
+	                        that.close_window();
+	                   }else{
+	                       alert(data.resperr);
+	                   }
+	                });
+	            }else{
+	                alert(resp.resperr);
+	            } 
+	        });
+	    },
 	    getInitialState: function(){
 	        return {
-	            provinces: [
-	                {value: '1', label: '河北省'},
-	                {value: '2', label: '东北省'},
-	                {value: '3', label: '山西省'},
-	                {value: '4', label: '陕西省'},
-	                {value: '5', label: '吉林省'},
-	                {value: '6', label: '辽宁省'},
-	                {value: '12', label: '湖南省'}
-	            ]
+	            provinces: [],
+	            province: {},
+	            cities: [],
+	            city: {},
+	            headbanks: [],
+	            headbank: {},
+	            branchbanks: [],
+	            branchbank: {}
 	        };
+	    },
+	    changeName: function(e){
+	        var that = this;
+	        var value = e.target.value;
+	        var target = {};
+
+	        if(value.length){
+	            target.nameError = false;
+	        }
+
+	        target.name = value;
+	        that.setState(target);
 	    },
 	    render: function(){
 	        var that = this;
 
 	        return React.createElement("div", {className: "cardbind"}, 
-	            React.createElement("div", {className: "fixed-top text-center header"}, 
+	            React.createElement("div", {className: "text-center header"}, 
 	                React.createElement("a", {href: "#/", className: "back-link"}, 
 	                    React.createElement("img", {className: "back", src: "/static/img/back.svg"})
 	                ), 
 	                React.createElement("span", null, "一键支付")
 	            ), 
-	            React.createElement("div", {className: "container"}, 
+	            React.createElement("div", {className: "container", ref: "container"}, 
 	                React.createElement("div", {className: "row"}, 
 	                    React.createElement("label", {className: "label", htmlFor: "name"}, "姓名"), 
 	                    React.createElement("span", {className: "target"}, 
-	                        React.createElement("input", {type: "text", id: "name", name: "name", className: "target-input"})
+	                        React.createElement("input", {type: "text", id: "name", name: "name", className: "target-input", onChange: that.changeName})
 	                    )
 	                ), 
+	                that.state.nameError ? React.createElement("div", {className: "error"}, that.state.nameError) : false, 
 	                React.createElement("div", {className: "row"}, 
 	                    React.createElement("label", {className: "label", htmlFor: "idnum"}, "身份证号"), 
 	                    React.createElement("span", {className: "target"}, 
-	                        React.createElement("input", {type: "text", id: "idnum", name: "idnum", className: "target-input"})
+	                        React.createElement("input", {type: "text", id: "idnum", name: "idnum", className: "target-input", onChange: that.changeIDNum})
 	                    )
 	                ), 
+	                that.state.idnumError ? React.createElement("div", {className: "error"}, that.state.idnumError) : false, 
+	                React.createElement("div", {className: "row"}, 
+	                    React.createElement("label", {className: "label", htmlFor: "bankaccount"}, "银行卡号"), 
+	                    React.createElement("span", {className: "target"}, 
+	                        React.createElement("input", {type: "text", value: that.state.bankaccount, id: "bankaccount", name: "bankaccount", className: "target-input", onChange: that.changeBankAccount})
+	                    )
+	                ), 
+	                that.state.bankaccountError ? React.createElement("div", {className: "error"}, that.state.bankaccountError) : false, 
 	                React.createElement("div", {className: "row select"}, 
 	                    React.createElement("label", {className: "label", htmlFor: "provinces"}, "省份"), 
 	                    React.createElement("span", {className: "target"}, 
-	                        React.createElement(Select, {name: "provinces", id: "provinces", value: "", options: that.state.provinces, onChange: that.onSelect})
+	                        React.createElement(Select, {name: "provinces", id: "provinces", value: that.state.province.label, options: that.state.provinces, onChange: that.onSelectProvince, placeholder: "请选择省份", noResultsText: "无数据"})
 	                    )
+	                ), 
+	                that.state.provinceError ? React.createElement("div", {className: "error"}, that.state.provinceError):false, 
+	                that.state.province.label ? React.createElement("div", {className: "row select"}, 
+	                    React.createElement("label", {className: "label", htmlFor: "city"}, "城市"), 
+	                    React.createElement("span", {className: "target"}, 
+	                        React.createElement(Select, {name: "city", id: "cities", value: that.state.city.label, options: that.state.province.cities, onChange: that.onSelectCity, placeholder: "请选择城市", noResultsText: "无数据"})
+	                    )
+	                ) : false, 
+	                that.state.cityError ? React.createElement("div", {className: "error"}, that.state.cityError):false, 
+	                that.state.showheadbanks ? React.createElement("div", {className: "row select"}, 
+	                    React.createElement("label", {className: "label", htmlFor: "headbanks"}, "银行"), 
+	                    React.createElement("span", {className: "target"}, 
+	                        React.createElement(Select, {name: "headbank", disabled: that.state.disableheadbank, id: "headbanks", value: that.state.headbank.label, options: that.state.headbanks, onChange: that.onSelectHeadbank, placeholder: "请选择银行", noResultsText: "无数据"})
+	                    )
+	                ) : false, 
+	                that.state.headbankError ? React.createElement("div", {className: "error"}, that.state.headbankError):false, 
+	                that.state.branchbanks.length ? React.createElement("div", {className: "row select"}, 
+	                    React.createElement("label", {className: "label", htmlFor: "branchbank"}, "银行支行"), 
+	                    React.createElement("span", {className: "target"}, 
+	                        React.createElement(Select, {name: "branchbank", id: "branchbank", value: that.state.branchbank.label, options: that.state.branchbanks, onChange: that.onSelectBranchbank, placeholder: "请选择支行", noResultsText: "无数据"})
+	                    )
+	                ) : false, 
+	                that.state.branchbankError ? React.createElement("div", {className: "error"}, that.state.branchbankError):false
+	            ), 
+	            React.createElement("div", {className: "footer", ref: "footer"}, 
+	                React.createElement("div", {className: "row"}, 
+	                    React.createElement("label", {className: "note"}, 
+	                        React.createElement("input", {type: "checkbox", name: "agree"}), 
+	                       React.createElement("a", {href: "#"}, "已阅读并同意<<钱台交易云一键支付支付服务协议>>")
+	                    )
+	                ), 
+	                React.createElement("button", {className: "btn btn-primary text-center alert-bar", onTouchStart: that.submit}, 
+	                "确认支付并开通"
 	                )
 	            )
 	        )
@@ -3847,95 +4122,93 @@ webpackJsonp([1],[
 /* 205 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/duanhong/Documents/Source/Python/qiantai_demo/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/duanhong/Documents/Source/Python/qiantai_demo/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } (function () {
 
 	var _ = __webpack_require__(206),
-	    React = __webpack_require__(1),
-	    Input = __webpack_require__(207),
-	    classes = __webpack_require__(208),
-	    Value = __webpack_require__(209);
+		React = __webpack_require__(1),
+		Input = __webpack_require__(207),
+		classes = __webpack_require__(208),
+		Value = __webpack_require__(209);
 
 	var requestId = 0;
 
 	var Select = React.createClass({
 
-		displayName: "Select",
+		displayName: 'Select',
 
 		propTypes: {
-			value: React.PropTypes.any, // initial field value
-			multi: React.PropTypes.bool, // multi-value input
-			disabled: React.PropTypes.bool, // whether the Select is disabled or not
-			options: React.PropTypes.array, // array of options
-			delimiter: React.PropTypes.string, // delimiter to use to join multiple values
-			asyncOptions: React.PropTypes.func, // function to call to get options
-			autoload: React.PropTypes.bool, // whether to auto-load the default async options set
-			placeholder: React.PropTypes.string, // field placeholder, displayed when there's no value
-			noResultsText: React.PropTypes.string, // placeholder displayed when there are no matching search results
-			clearable: React.PropTypes.bool, // should it be possible to reset value
-			clearValueText: React.PropTypes.string, // title for the "clear" control
-			clearAllText: React.PropTypes.string, // title for the "clear" control when multi: true
-			searchable: React.PropTypes.bool, // whether to enable searching feature or not
-			searchPromptText: React.PropTypes.string, // label to prompt for search input
-			name: React.PropTypes.string, // field name, for hidden <input /> tag
-			onChange: React.PropTypes.func, // onChange handler: function(newValue) {}
-			onFocus: React.PropTypes.func, // onFocus handler: function(event) {}
-			onBlur: React.PropTypes.func, // onBlur handler: function(event) {}
-			className: React.PropTypes.string, // className for the outer element
-			filterOption: React.PropTypes.func, // method to filter a single option: function(option, filterString)
-			filterOptions: React.PropTypes.func, // method to filter the options array: function([options], filterString, [values])
-			matchPos: React.PropTypes.string, // (any|start) match the start or entire string when filtering
-			matchProp: React.PropTypes.string, // (any|label|value) which option property to filter on
-			inputProps: React.PropTypes.object, // custom attributes for the Input (in the Select-control) e.g: {'data-foo': 'bar'}
+			value: React.PropTypes.any,                // initial field value
+			multi: React.PropTypes.bool,               // multi-value input
+			disabled: React.PropTypes.bool,            // whether the Select is disabled or not
+			options: React.PropTypes.array,            // array of options
+			delimiter: React.PropTypes.string,         // delimiter to use to join multiple values
+			asyncOptions: React.PropTypes.func,        // function to call to get options
+			autoload: React.PropTypes.bool,            // whether to auto-load the default async options set
+			placeholder: React.PropTypes.string,       // field placeholder, displayed when there's no value
+			noResultsText: React.PropTypes.string,     // placeholder displayed when there are no matching search results
+			clearable: React.PropTypes.bool,           // should it be possible to reset value
+			clearValueText: React.PropTypes.string,    // title for the "clear" control
+			clearAllText: React.PropTypes.string,      // title for the "clear" control when multi: true
+			searchable: React.PropTypes.bool,          // whether to enable searching feature or not
+			searchPromptText: React.PropTypes.string,  // label to prompt for search input
+			name: React.PropTypes.string,              // field name, for hidden <input /> tag
+			onChange: React.PropTypes.func,            // onChange handler: function(newValue) {}
+			onFocus: React.PropTypes.func,             // onFocus handler: function(event) {}
+			onBlur: React.PropTypes.func,              // onBlur handler: function(event) {}
+			className: React.PropTypes.string,         // className for the outer element
+			filterOption: React.PropTypes.func,        // method to filter a single option: function(option, filterString)
+			filterOptions: React.PropTypes.func,       // method to filter the options array: function([options], filterString, [values])
+			matchPos: React.PropTypes.string,          // (any|start) match the start or entire string when filtering
+			matchProp: React.PropTypes.string,         // (any|label|value) which option property to filter on
+			inputProps: React.PropTypes.object,        // custom attributes for the Input (in the Select-control) e.g: {'data-foo': 'bar'}
 
 			/*
-	  * Allow user to make option label clickable. When this handler is defined we should
-	  * wrap label into <a>label</a> tag.
-	  *
-	  * onOptionLabelClick handler: function (value, event) {}
-	  *
-	  */
+			* Allow user to make option label clickable. When this handler is defined we should
+			* wrap label into <a>label</a> tag.
+			*
+			* onOptionLabelClick handler: function (value, event) {}
+			*
+			*/
 			onOptionLabelClick: React.PropTypes.func
 		},
 
-		getDefaultProps: function getDefaultProps() {
+		getDefaultProps: function() {
 			return {
 				value: undefined,
 				options: [],
 				disabled: false,
-				delimiter: ",",
+				delimiter: ',',
 				asyncOptions: undefined,
 				autoload: true,
-				placeholder: "Select...",
-				noResultsText: "No results found",
+				placeholder: 'Select...',
+				noResultsText: 'No results found',
 				clearable: true,
-				clearValueText: "Clear value",
-				clearAllText: "Clear all",
+				clearValueText: 'Clear value',
+				clearAllText: 'Clear all',
 				searchable: true,
-				searchPromptText: "Type to search",
+				searchPromptText: 'Type to search',
 				name: undefined,
 				onChange: undefined,
 				className: undefined,
-				matchPos: "any",
-				matchProp: "any",
+				matchPos: 'any',
+				matchProp: 'any',
 				inputProps: {},
 
 				onOptionLabelClick: undefined
 			};
 		},
 
-		getInitialState: function getInitialState() {
+		getInitialState: function() {
 			return {
 				/*
-	    * set by getStateFromValue on componentWillMount:
-	    * - value
-	    * - values
-	    * - filteredOptions
-	    * - inputValue
-	    * - placeholder
-	    * - focusedOption
-	   */
+				 * set by getStateFromValue on componentWillMount:
+				 * - value
+				 * - values
+				 * - filteredOptions
+				 * - inputValue
+				 * - placeholder
+				 * - focusedOption
+				*/
 				options: this.props.options,
 				isFocused: false,
 				isOpen: false,
@@ -3943,16 +4216,16 @@ webpackJsonp([1],[
 			};
 		},
 
-		componentWillMount: function componentWillMount() {
+		componentWillMount: function() {
 			this._optionsCache = {};
-			this._optionsFilterString = "";
+			this._optionsFilterString = '';
 			this.setState(this.getStateFromValue(this.props.value));
 
 			if (this.props.asyncOptions && this.props.autoload) {
 				this.autoloadAsyncOptions();
 			}
 
-			this._closeMenuIfClickedOutside = (function (event) {
+			this._closeMenuIfClickedOutside = function(event) {
 				if (!this.state.isOpen) {
 					return;
 				}
@@ -3968,27 +4241,27 @@ webpackJsonp([1],[
 						isOpen: false
 					}, this._unbindCloseMenuIfClickedOutside);
 				}
-			}).bind(this);
+			}.bind(this);
 
-			this._bindCloseMenuIfClickedOutside = function () {
-				document.addEventListener("click", this._closeMenuIfClickedOutside);
+			this._bindCloseMenuIfClickedOutside = function() {
+				document.addEventListener('click', this._closeMenuIfClickedOutside);
 			};
 
-			this._unbindCloseMenuIfClickedOutside = function () {
-				document.removeEventListener("click", this._closeMenuIfClickedOutside);
+			this._unbindCloseMenuIfClickedOutside = function() {
+				document.removeEventListener('click', this._closeMenuIfClickedOutside);
 			};
 		},
 
-		componentWillUnmount: function componentWillUnmount() {
+		componentWillUnmount: function() {
 			clearTimeout(this._blurTimeout);
 			clearTimeout(this._focusTimeout);
 
-			if (this.state.isOpen) {
+			if(this.state.isOpen) {
 				this._unbindCloseMenuIfClickedOutside();
 			}
 		},
 
-		componentWillReceiveProps: function componentWillReceiveProps(newProps) {
+		componentWillReceiveProps: function(newProps) {
 			if (JSON.stringify(newProps.options) !== JSON.stringify(this.props.options)) {
 				this.setState({
 					options: newProps.options,
@@ -4000,13 +4273,13 @@ webpackJsonp([1],[
 			}
 		},
 
-		componentDidUpdate: function componentDidUpdate() {
+		componentDidUpdate: function() {
 			if (this._focusAfterUpdate) {
 				clearTimeout(this._blurTimeout);
-				this._focusTimeout = setTimeout((function () {
+				this._focusTimeout = setTimeout(function() {
 					this.getInputNode().focus();
 					this._focusAfterUpdate = false;
-				}).bind(this), 50);
+				}.bind(this), 50);
 			}
 
 			if (this._focusedOptionReveal) {
@@ -4016,8 +4289,9 @@ webpackJsonp([1],[
 					var focusedRect = focusedDOM.getBoundingClientRect();
 					var menuRect = menuDOM.getBoundingClientRect();
 
-					if (focusedRect.bottom > menuRect.bottom || focusedRect.top < menuRect.top) {
-						menuDOM.scrollTop = focusedDOM.offsetTop + focusedDOM.clientHeight - menuDOM.offsetHeight;
+					if (focusedRect.bottom > menuRect.bottom ||
+						focusedRect.top < menuRect.top) {
+						menuDOM.scrollTop = (focusedDOM.offsetTop + focusedDOM.clientHeight - menuDOM.offsetHeight);
 					}
 				}
 
@@ -4025,54 +4299,51 @@ webpackJsonp([1],[
 			}
 		},
 
-		clickedOutsideElement: function clickedOutsideElement(element, event) {
-			var eventTarget = event.target ? event.target : event.srcElement;
+		clickedOutsideElement: function(element, event) {
+			var eventTarget = (event.target) ? event.target : event.srcElement;
 			while (eventTarget != null) {
-				if (eventTarget === element) {
-					return false;
-				}eventTarget = eventTarget.offsetParent;
+				if (eventTarget === element) return false;
+				eventTarget = eventTarget.offsetParent;
 			}
 			return true;
 		},
 
-		getStateFromValue: function getStateFromValue(value, options) {
+		getStateFromValue: function(value, options) {
 			if (!options) {
 				options = this.state.options;
 			}
 
 			// reset internal filter string
-			this._optionsFilterString = "";
+			this._optionsFilterString = '';
 
 			var values = this.initValuesArray(value, options),
-			    filteredOptions = this.filterOptions(options, values);
+				filteredOptions = this.filterOptions(options, values);
 
 			return {
-				value: values.map(function (v) {
-					return v.value;
-				}).join(this.props.delimiter),
+				value: values.map(function(v) { return v.value; }).join(this.props.delimiter),
 				values: values,
-				inputValue: "",
+				inputValue: '',
 				filteredOptions: filteredOptions,
 				placeholder: !this.props.multi && values.length ? values[0].label : this.props.placeholder,
 				focusedOption: !this.props.multi && values.length ? values[0] : filteredOptions[0]
 			};
 		},
 
-		initValuesArray: function initValuesArray(values, options) {
+		initValuesArray: function(values, options) {
 			if (!Array.isArray(values)) {
-				if (typeof values === "string") {
+				if (typeof values === 'string') {
 					values = values.split(this.props.delimiter);
 				} else {
 					values = values ? [values] : [];
 				}
 			}
 
-			return values.map(function (val) {
-				return typeof val === "string" ? val = _.findWhere(options, { value: val }) || { value: val, label: val } : val;
+			return values.map(function(val) {
+				return (typeof val === 'string') ? val = _.findWhere(options, { value: val }) || { value: val, label: val } : val;
 			});
 		},
 
-		setValue: function setValue(value) {
+		setValue: function(value) {
 			this._focusAfterUpdate = true;
 			var newState = this.getStateFromValue(value);
 			newState.isOpen = false;
@@ -4080,7 +4351,7 @@ webpackJsonp([1],[
 			this.setState(newState);
 		},
 
-		selectValue: function selectValue(value) {
+		selectValue: function(value) {
 			if (!this.props.multi) {
 				this.setValue(value);
 			} else if (value) {
@@ -4089,46 +4360,46 @@ webpackJsonp([1],[
 			this._unbindCloseMenuIfClickedOutside();
 		},
 
-		addValue: function addValue(value) {
+		addValue: function(value) {
 			this.setValue(this.state.values.concat(value));
 		},
 
-		popValue: function popValue() {
+		popValue: function() {
 			this.setValue(_.initial(this.state.values));
 		},
 
-		removeValue: function removeValue(value) {
+		removeValue: function(value) {
 			this.setValue(_.without(this.state.values, value));
 		},
 
-		clearValue: function clearValue(event) {
+		clearValue: function(event) {
 			// if the event was triggered by a mousedown and not the primary
 			// button, ignore it.
-			if (event && event.type === "mousedown" && event.button !== 0) {
+			if (event && event.type === 'mousedown' && event.button !== 0) {
 				return;
 			}
 			this.setValue(null);
 		},
 
-		resetValue: function resetValue() {
+		resetValue: function() {
 			this.setValue(this.state.value);
 		},
 
-		getInputNode: function getInputNode() {
+		getInputNode: function () {
 			var input = this.refs.input;
 			return this.props.searchable ? input : input.getDOMNode();
 		},
 
-		fireChangeEvent: function fireChangeEvent(newState) {
+		fireChangeEvent: function(newState) {
 			if (newState.value !== this.state.value && this.props.onChange) {
 				this.props.onChange(newState.value, newState.values);
 			}
 		},
 
-		handleMouseDown: function handleMouseDown(event) {
+		handleMouseDown: function(event) {
 			// if the event was triggered by a mousedown and not the primary
 			// button, or if the component is disabled, ignore it.
-			if (this.props.disabled || event.type === "mousedown" && event.button !== 0) {
+			if (this.props.disabled || (event.type === 'mousedown' && event.button !== 0)) {
 				return;
 			}
 
@@ -4144,15 +4415,16 @@ webpackJsonp([1],[
 			}
 		},
 
-		handleInputFocus: function handleInputFocus(event) {
+		handleInputFocus: function(event) {
 			var newIsOpen = this.state.isOpen || this._openAfterFocus;
 			this.setState({
 				isFocused: true,
 				isOpen: newIsOpen
-			}, function () {
-				if (newIsOpen) {
+			}, function() {
+				if(newIsOpen) {
 					this._bindCloseMenuIfClickedOutside();
-				} else {
+				}
+				else {
 					this._unbindCloseMenuIfClickedOutside();
 				}
 			});
@@ -4163,71 +4435,64 @@ webpackJsonp([1],[
 			}
 		},
 
-		handleInputBlur: function handleInputBlur(event) {
-			this._blurTimeout = setTimeout((function () {
+		handleInputBlur: function(event) {
+			this._blurTimeout = setTimeout(function() {
 				if (this._focusAfterUpdate) return;
 				this.setState({
 					isFocused: false
 				});
-			}).bind(this), 50);
+			}.bind(this), 50);
 
 			if (this.props.onBlur) {
 				this.props.onBlur(event);
 			}
 		},
 
-		handleKeyDown: function handleKeyDown(event) {
-			if (this.state.disabled) {
-				return;
-			}switch (event.keyCode) {
+		handleKeyDown: function(event) {
+			if (this.state.disabled) return;
 
-				case 8:
-					// backspace
+			switch (event.keyCode) {
+
+				case 8: // backspace
 					if (!this.state.inputValue) {
 						this.popValue();
 					}
-					return;
+				return;
 
-				case 9:
-					// tab
+				case 9: // tab
 					if (event.shiftKey || !this.state.isOpen || !this.state.focusedOption) {
 						return;
 					}
 					this.selectFocusedOption();
-					break;
+				break;
 
-				case 13:
-					// enter
+				case 13: // enter
 					this.selectFocusedOption();
-					break;
+				break;
 
-				case 27:
-					// escape
+				case 27: // escape
 					if (this.state.isOpen) {
 						this.resetValue();
 					} else {
 						this.clearValue();
 					}
-					break;
+				break;
 
-				case 38:
-					// up
+				case 38: // up
 					this.focusPreviousOption();
-					break;
+				break;
 
-				case 40:
-					// down
+				case 40: // down
 					this.focusNextOption();
-					break;
+				break;
 
-				default:
-					return;
+				default: return;
 			}
 
 			event.preventDefault();
 		},
 
-		handleInputChange: function handleInputChange(event) {
+		handleInputChange: function(event) {
 			// assign an internal variable because we need to use
 			// the latest value before setState() has completed.
 			this._optionsFilterString = event.target.value;
@@ -4252,11 +4517,11 @@ webpackJsonp([1],[
 			}
 		},
 
-		autoloadAsyncOptions: function autoloadAsyncOptions() {
-			this.loadAsyncOptions("", {}, function () {});
+		autoloadAsyncOptions: function() {
+			this.loadAsyncOptions('', {}, function() {});
 		},
 
-		loadAsyncOptions: function loadAsyncOptions(input, state) {
+		loadAsyncOptions: function(input, state) {
 			var thisRequestId = this._currentRequestId = requestId++;
 
 			for (var i = 0; i <= input.length; i++) {
@@ -4274,7 +4539,7 @@ webpackJsonp([1],[
 				}
 			}
 
-			this.props.asyncOptions(input, (function (err, data) {
+			this.props.asyncOptions(input, function(err, data) {
 
 				if (err) throw err;
 
@@ -4290,53 +4555,57 @@ webpackJsonp([1],[
 					filteredOptions: filteredOptions,
 					focusedOption: _.contains(filteredOptions, this.state.focusedOption) ? this.state.focusedOption : filteredOptions[0]
 				}, state));
-			}).bind(this));
+
+			}.bind(this));
 		},
 
-		filterOptions: function filterOptions(options, values) {
+		filterOptions: function(options, values) {
 			if (!this.props.searchable) {
 				return options;
 			}
 
 			var filterValue = this._optionsFilterString;
-			var exclude = (values || this.state.values).map(function (i) {
+			var exclude = (values || this.state.values).map(function(i) {
 				return i.value;
 			});
 			if (this.props.filterOptions) {
 				return this.props.filterOptions.call(this, options, filterValue, exclude);
 			} else {
-				var filterOption = function filterOption(op) {
-					if (this.props.multi && _.contains(exclude, op.value)) {
-						return false;
-					}if (this.props.filterOption) {
-						return this.props.filterOption.call(this, op, filterValue);
-					}var valueTest = String(op.value),
-					    labelTest = String(op.label);
-					return !filterValue || this.props.matchPos === "start" ? this.props.matchProp !== "label" && valueTest.toLowerCase().substr(0, filterValue.length) === filterValue || this.props.matchProp !== "value" && labelTest.toLowerCase().substr(0, filterValue.length) === filterValue : this.props.matchProp !== "label" && valueTest.toLowerCase().indexOf(filterValue.toLowerCase()) >= 0 || this.props.matchProp !== "value" && labelTest.toLowerCase().indexOf(filterValue.toLowerCase()) >= 0;
+				var filterOption = function(op) {
+					if (this.props.multi && _.contains(exclude, op.value)) return false;
+					if (this.props.filterOption) return this.props.filterOption.call(this, op, filterValue);
+					var valueTest = String(op.value), labelTest = String(op.label);
+					return !filterValue || (this.props.matchPos === 'start') ? (
+						(this.props.matchProp !== 'label' && valueTest.toLowerCase().substr(0, filterValue.length) === filterValue) ||
+						(this.props.matchProp !== 'value' && labelTest.toLowerCase().substr(0, filterValue.length) === filterValue)
+					) : (
+						(this.props.matchProp !== 'label' && valueTest.toLowerCase().indexOf(filterValue.toLowerCase()) >= 0) ||
+						(this.props.matchProp !== 'value' && labelTest.toLowerCase().indexOf(filterValue.toLowerCase()) >= 0)
+					);
 				};
 				return _.filter(options, filterOption, this);
 			}
 		},
 
-		selectFocusedOption: function selectFocusedOption() {
+		selectFocusedOption: function() {
 			return this.selectValue(this.state.focusedOption);
 		},
 
-		focusOption: function focusOption(op) {
+		focusOption: function(op) {
 			this.setState({
 				focusedOption: op
 			});
 		},
 
-		focusNextOption: function focusNextOption() {
-			this.focusAdjacentOption("next");
+		focusNextOption: function() {
+			this.focusAdjacentOption('next');
 		},
 
-		focusPreviousOption: function focusPreviousOption() {
-			this.focusAdjacentOption("previous");
+		focusPreviousOption: function() {
+			this.focusAdjacentOption('previous');
 		},
 
-		focusAdjacentOption: function focusAdjacentOption(dir) {
+		focusAdjacentOption: function(dir) {
 			this._focusedOptionReveal = true;
 
 			var ops = this.state.filteredOptions;
@@ -4344,8 +4613,8 @@ webpackJsonp([1],[
 			if (!this.state.isOpen) {
 				this.setState({
 					isOpen: true,
-					inputValue: "",
-					focusedOption: this.state.focusedOption || ops[dir === "next" ? 0 : ops.length - 1]
+					inputValue: '',
+					focusedOption: this.state.focusedOption || ops[dir === 'next' ? 0 : ops.length - 1]
 				}, this._bindCloseMenuIfClickedOutside);
 				return;
 			}
@@ -4365,9 +4634,9 @@ webpackJsonp([1],[
 
 			var focusedOption = ops[0];
 
-			if (dir === "next" && focusedIndex > -1 && focusedIndex < ops.length - 1) {
+			if (dir === 'next' && focusedIndex > -1 && focusedIndex < ops.length - 1) {
 				focusedOption = ops[focusedIndex + 1];
-			} else if (dir === "previous") {
+			} else if (dir === 'previous') {
 				if (focusedIndex > 0) {
 					focusedOption = ops[focusedIndex - 1];
 				} else {
@@ -4378,9 +4647,10 @@ webpackJsonp([1],[
 			this.setState({
 				focusedOption: focusedOption
 			});
+
 		},
 
-		unfocusOption: function unfocusOption(op) {
+		unfocusOption: function(op) {
 			if (this.state.focusedOption === op) {
 				this.setState({
 					focusedOption: null
@@ -4388,42 +4658,39 @@ webpackJsonp([1],[
 			}
 		},
 
-		buildMenu: function buildMenu() {
+		buildMenu: function() {
 			var focusedValue = this.state.focusedOption ? this.state.focusedOption.value : null;
 
-			if (this.state.filteredOptions.length > 0) {
+			if(this.state.filteredOptions.length > 0) {
 				focusedValue = focusedValue == null ? this.state.filteredOptions[0] : focusedValue;
 			}
 
-			var ops = _.map(this.state.filteredOptions, function (op) {
+			var ops = _.map(this.state.filteredOptions, function(op) {
 				var isFocused = focusedValue === op.value;
 
 				var optionClass = classes({
-					"Select-option": true,
-					"is-focused": isFocused
+					'Select-option': true,
+					'is-focused': isFocused
 				});
 
-				var ref = isFocused ? "focused" : null;
+				var ref = isFocused ? 'focused' : null;
 
 				var mouseEnter = this.focusOption.bind(this, op),
-				    mouseLeave = this.unfocusOption.bind(this, op),
-				    mouseDown = this.selectValue.bind(this, op);
+					mouseLeave = this.unfocusOption.bind(this, op),
+					mouseDown = this.selectValue.bind(this, op);
 
-				return React.createElement(
-					"div",
-					{ ref: ref, key: "option-" + op.value, className: optionClass, onMouseEnter: mouseEnter, onMouseLeave: mouseLeave, onMouseDown: mouseDown, onClick: mouseDown },
-					op.label
-				);
+				return React.createElement("div", {ref: ref, key: 'option-' + op.value, className: optionClass, onMouseEnter: mouseEnter, onMouseLeave: mouseLeave, onMouseDown: mouseDown, onClick: mouseDown}, op.label);
+
 			}, this);
 
-			return ops.length ? ops : React.createElement(
-				"div",
-				{ className: "Select-noresults" },
-				this.props.asyncOptions && !this.state.inputValue ? this.props.searchPromptText : this.props.noResultsText
+			return ops.length ? ops : (
+				React.createElement("div", {className: "Select-noresults"}, 
+					this.props.asyncOptions && !this.state.inputValue ? this.props.searchPromptText : this.props.noResultsText
+				)
 			);
 		},
 
-		handleOptionLabelClick: function handleOptionLabelClick(value, event) {
+		handleOptionLabelClick: function (value, event) {
 			var handler = this.props.onOptionLabelClick;
 
 			if (handler) {
@@ -4431,102 +4698,91 @@ webpackJsonp([1],[
 			}
 		},
 
-		render: function render() {
-			var selectClass = classes("Select", this.props.className, {
-				"is-multi": this.props.multi,
-				"is-searchable": this.props.searchable,
-				"is-open": this.state.isOpen,
-				"is-focused": this.state.isFocused,
-				"is-loading": this.state.isLoading,
-				"is-disabled": this.props.disabled,
-				"has-value": this.state.value
+		render: function() {
+			var selectClass = classes('Select', this.props.className, {
+				'is-multi': this.props.multi,
+				'is-searchable': this.props.searchable,
+				'is-open': this.state.isOpen,
+				'is-focused': this.state.isFocused,
+				'is-loading': this.state.isLoading,
+				'is-disabled': this.props.disabled,
+				'has-value': this.state.value
 			});
 
 			var value = [];
 
 			if (this.props.multi) {
-				this.state.values.forEach(function (val) {
+				this.state.values.forEach(function(val) {
 					var props = _.extend({
 						key: val.value,
 						optionLabelClick: !!this.props.onOptionLabelClick,
 						onOptionLabelClick: this.handleOptionLabelClick.bind(this, val),
 						onRemove: this.removeValue.bind(this, val)
 					}, val);
-					value.push(React.createElement(Value, props));
+					value.push(React.createElement(Value, React.__spread({},  props)));
 				}, this);
 			}
 
-			if (this.props.disabled || !this.state.inputValue && (!this.props.multi || !value.length)) {
-				value.push(React.createElement(
-					"div",
-					{ className: "Select-placeholder", key: "placeholder" },
-					this.state.placeholder
-				));
+			if (this.props.disabled || (!this.state.inputValue && (!this.props.multi || !value.length))) {
+				value.push(React.createElement("div", {className: "Select-placeholder", key: "placeholder"}, this.state.placeholder));
 			}
 
-			var loading = this.state.isLoading ? React.createElement("span", { className: "Select-loading", "aria-hidden": "true" }) : null;
-			var clear = this.props.clearable && this.state.value && !this.props.disabled ? React.createElement("span", { className: "Select-clear", title: this.props.multi ? this.props.clearAllText : this.props.clearValueText, "aria-label": this.props.multi ? this.props.clearAllText : this.props.clearValueText, onMouseDown: this.clearValue, onClick: this.clearValue, dangerouslySetInnerHTML: { __html: "&times;" } }) : null;
+			var loading = this.state.isLoading ? React.createElement("span", {className: "Select-loading", "aria-hidden": "true"}) : null;
+			var clear = this.props.clearable && this.state.value && !this.props.disabled ? React.createElement("span", {className: "Select-clear", title: this.props.multi ? this.props.clearAllText : this.props.clearValueText, "aria-label": this.props.multi ? this.props.clearAllText : this.props.clearValueText, onMouseDown: this.clearValue, onClick: this.clearValue, dangerouslySetInnerHTML: { __html: '&times;'}}) : null;
 
 			var menu;
 			var menuProps;
 			if (this.state.isOpen) {
 				menuProps = {
-					ref: "menu",
-					className: "Select-menu"
+					ref: 'menu',
+					className: 'Select-menu'
 				};
 				if (this.props.multi) {
 					menuProps.onMouseDown = this.handleMouseDown;
 				}
-				menu = React.createElement(
-					"div",
-					{ ref: "selectMenuContainer", className: "Select-menu-outer" },
-					React.createElement(
-						"div",
-						menuProps,
-						this.buildMenu()
+				menu = (
+					React.createElement("div", {ref: "selectMenuContainer", className: "Select-menu-outer"}, 
+						React.createElement("div", React.__spread({},  menuProps), this.buildMenu())
 					)
 				);
 			}
 
 			var input;
 			var inputProps = _.extend({
-				ref: "input",
-				className: "Select-input",
+				ref: 'input',
+				className: 'Select-input',
 				tabIndex: this.props.tabIndex || 0,
 				onFocus: this.handleInputFocus,
 				onBlur: this.handleInputBlur
 			}, this.props.inputProps);
 
 			if (this.props.searchable && !this.props.disabled) {
-				input = React.createElement(Input, _extends({ value: this.state.inputValue, onChange: this.handleInputChange, minWidth: "5" }, inputProps));
+				input = React.createElement(Input, React.__spread({value: this.state.inputValue, onChange: this.handleInputChange, minWidth: "5"},  inputProps));
 			} else {
-				input = React.createElement(
-					"div",
-					inputProps,
-					" "
-				);
+				input = React.createElement("div", React.__spread({},  inputProps), " ");
 			}
 
-			return React.createElement(
-				"div",
-				{ ref: "wrapper", className: selectClass },
-				React.createElement("input", { type: "hidden", ref: "value", name: this.props.name, value: this.state.value, disabled: this.props.disabled }),
-				React.createElement(
-					"div",
-					{ className: "Select-control", ref: "control", onKeyDown: this.handleKeyDown, onMouseDown: this.handleMouseDown, onTouchEnd: this.handleMouseDown },
-					value,
-					input,
-					React.createElement("span", { className: "Select-arrow" }),
-					loading,
-					clear
-				),
-				menu
+			return (
+				React.createElement("div", {ref: "wrapper", className: selectClass}, 
+					React.createElement("input", {type: "hidden", ref: "value", name: this.props.name, value: this.state.value, disabled: this.props.disabled}), 
+					React.createElement("div", {className: "Select-control", ref: "control", onKeyDown: this.handleKeyDown, onMouseDown: this.handleMouseDown, onTouchEnd: this.handleMouseDown}, 
+						value, 
+						input, 
+						React.createElement("span", {className: "Select-arrow"}), 
+						loading, 
+						clear
+					), 
+					menu
+				)
 			);
 		}
 
 	});
 
 	module.exports = Select;
+
+
+	/* REACT HOT LOADER */ })(); if (false) { (function () { module.hot.dispose(function (data) { data.makeHot = module.makeHot; }); if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/duanhong/Documents/Source/Python/qiantai_demo/node_modules/react-hot-loader/makeExportsHot.js"), foundReactClasses = false; if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "select.js" + ": " + err.message); } }); } } })(); }
 
 /***/ },
 /* 206 */
@@ -16503,51 +16759,43 @@ webpackJsonp([1],[
 /* 209 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	/* REACT HOT LOADER */ if (false) { (function () { var ReactHotAPI = require("/Users/duanhong/Documents/Source/Python/qiantai_demo/node_modules/react-hot-loader/node_modules/react-hot-api/modules/index.js"), RootInstanceProvider = require("/Users/duanhong/Documents/Source/Python/qiantai_demo/node_modules/react-hot-loader/RootInstanceProvider.js"), ReactMount = require("react/lib/ReactMount"), React = require("react"); module.makeHot = module.hot.data ? module.hot.data.makeHot : ReactHotAPI(function () { return RootInstanceProvider.getRootInstances(ReactMount); }, React); })(); } (function () {
 
 	var React = __webpack_require__(1);
 
 	var Option = React.createClass({
 
-		displayName: "Value",
+		displayName: 'Value',
 
 		propTypes: {
 			label: React.PropTypes.string.isRequired
 		},
 
-		blockEvent: function blockEvent(event) {
+		blockEvent: function(event) {
 			event.stopPropagation();
 		},
 
-		render: function render() {
+		render: function() {
 			var label = this.props.label;
 
 			if (this.props.optionLabelClick) {
-				label = React.createElement(
-					"a",
-					{ className: "Select-item-label__a",
-						onMouseDown: this.blockEvent,
-						onTouchEnd: this.props.onOptionLabelClick,
-						onClick: this.props.onOptionLabelClick },
-					label
+				label = (
+					React.createElement("a", {className: "Select-item-label__a", 
+						onMouseDown: this.blockEvent, 
+						onTouchEnd: this.props.onOptionLabelClick, 
+						onClick: this.props.onOptionLabelClick}, 
+						label
+					)
 				);
 			}
 
-			return React.createElement(
-				"div",
-				{ className: "Select-item" },
-				React.createElement(
-					"span",
-					{ className: "Select-item-icon",
-						onMouseDown: this.blockEvent,
-						onClick: this.props.onRemove,
-						onTouchEnd: this.props.onRemove },
-					"×"
-				),
-				React.createElement(
-					"span",
-					{ className: "Select-item-label" },
-					label
+			return (
+				React.createElement("div", {className: "Select-item"}, 
+					React.createElement("span", {className: "Select-item-icon", 
+						onMouseDown: this.blockEvent, 
+						onClick: this.props.onRemove, 
+						onTouchEnd: this.props.onRemove}, "×"), 
+					React.createElement("span", {className: "Select-item-label"}, label)
 				)
 			);
 		}
@@ -16555,6 +16803,9 @@ webpackJsonp([1],[
 	});
 
 	module.exports = Option;
+
+
+	/* REACT HOT LOADER */ })(); if (false) { (function () { module.hot.dispose(function (data) { data.makeHot = module.makeHot; }); if (module.exports && module.makeHot) { var makeExportsHot = require("/Users/duanhong/Documents/Source/Python/qiantai_demo/node_modules/react-hot-loader/makeExportsHot.js"), foundReactClasses = false; if (makeExportsHot(module, require("react"))) { foundReactClasses = true; } var shouldAcceptModule = true && foundReactClasses; if (shouldAcceptModule) { module.hot.accept(function (err) { if (err) { console.error("Cannot not apply hot update to " + "value.js" + ": " + err.message); } }); } } })(); }
 
 /***/ }
 ]);
