@@ -59,12 +59,10 @@ html[xmlns] .clearfix {
     width: 100%;
 }
 .btn-info {
-    background-color: @info;
-    color: white;
-    &:active {
-        color: @info;
-        background-color: white;
-    }
+    .btn(@info);
+}
+.btn-primary{
+    .btn(@primary);
 }
 .footer {
     position: absolute;
@@ -87,9 +85,9 @@ html[xmlns] .clearfix {
         line-height: 48px;
         height: 48px;
         .back {
-            height: 30px;
-            margin-top: 9px;
-            margin-left: 10px;
+            height: 24px;
+            margin-top: 12px;
+            margin-left: 12px;
         }
     }
     .back-link ~ span {
@@ -124,12 +122,6 @@ html[xmlns] .clearfix {
         z-index: 1;
     }
 }
-.note {
-    background-color: @red;
-    color: white;
-    padding: 5px 0;
-    line-height: 30px;
-}
 .table {
     text-decoration: none;
     width: 100%;
@@ -151,31 +143,19 @@ html[xmlns] .clearfix {
             border-bottom: none;
         }
     }
-    .avatar {
-        width: 80px;
-        height: 80px;
-        display: block;
-        margin: 0 auto;
-        border-radius: 50%;
+}
+.row {
+    display: block;
+    .label {
+        display: inline-block;
+        color: rgb(85, 89, 92);
+        font-size: 14px;
+        width: 30%;
     }
-    .row {
-        display: block;
-        &.name {
-            font-size: 20px;
-            font-weight: 600;
-            line-height: 40px;
-        }
-        .label {
-            margin-right: 10px;
-            color: rgb(85, 89, 92);
-            font-size: 14px;
-            span:last-child {
-                color: @info;
-                padding-left: 10px;
-            }
-        }
-        &.desc {
-            color: rgb(247, 111, 50);
-        }
+    .target {
+        display: inline-block;
+        width: 70%;
+        color: @info;
     }
 }
+

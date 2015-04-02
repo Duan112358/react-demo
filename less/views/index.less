@@ -1,30 +1,40 @@
 .index {
-    padding-top: 30%;
-    .app-title {
-        font-size: 45px;
-        font-weight: 600;
-        color: @info;
-        line-height: 45px;
-        margin-bottom: 30px;
+    background-color: #efefef;
+
+    .container{
+        padding: 0 5%;
     }
-    .app-logo > img {
+
+    .app-logo{
+        padding: 30px 0;
+    }
+    .app-logo > img{
         display: block;
         margin: 0 auto;
         width: 100px;
+        color: white;
     }
-    .app-desc {
-        margin-top: 30px;
-        color: rgb(0, 187, 210);
+
+    .app-desc{
+        color: @info;
+        font-size: 14px;
+        line-height: 20px;
+    }
+
+    .h3, .app-desc{
+        padding: 0 5%;
+    }
+
+    .btn{
+        font-size: 18px;
         line-height: 48px;
+        letter-spacing: .2em;
+        display: block;
+        width: 90%;
+        margin: 10px auto;
     }
-    .btn-info {
-        margin-bottom: 5px;
-        font-size: 20px;
-        line-height: 48px;
-    }
-    .app-ver {
+
+    .footer{
         margin-bottom: 10px;
-        line-height: 50px;
-        color: rgb(209, 209, 209);
     }
 }

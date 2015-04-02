@@ -1,12 +1,9 @@
 var React = require('react');
-var ReactRouter = require('react-router');
-var Router = ReactRouter.Router;
-var DefaultRoute = ReactRouter.DefaultRoute;
-var RouteHandler = ReactRouter.RouteHandler;
+var Router = require('react-router');
 
 var routes = require('./route');
 
-ReactRouter.run(routes, function (Handler) {
-  React.initializeTouchEvents(true);
+React.initializeTouchEvents(true);
+Router.run(routes, function (Handler) {
   React.render(<Handler/>, document.body);
 });

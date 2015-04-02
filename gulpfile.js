@@ -3,10 +3,12 @@
 var path = require('path'),
     gulp = require('gulp'),
     replace = require('gulp-replace'),
+    less = require('gulp-less'),
+    cssmin = require('gulp-minify-css'),
     webpack = require('gulp-webpack-build');
 
 var src = './',
-    dest = '../bin/static/js',
+    dest = 'build/static/js',
     webpackOptions = {
         watchDelay: 200,
         isConfigFile: function(file) {
@@ -32,26 +34,23 @@ gulp.task('webpack', function() {
         .pipe(gulp.dest(dest));
 });
 
-gulp.task('default', ['webpack'], function(){
-   return gulp.src('index.html')
-        .pipe(replace(/@@hash/g, Date.now()))
-        .pipe(gulp.dest('../bin/templates'));
+gulp.task('less', function(){
+    return gulp.src('less/app.less')
+        .pipe(less())
+        //.pipe(cssmin())
+        .pipe(gulp.dest('build/static/css'));
 });
 
-gulp.task('watch', function() {
-    gulp.watch(path.join('./', '**/*.*')).on('change', function(event) {
-        if (event.type === 'changed') {
-            gulp.src(event.path)
-                .pipe(webpack.closest())
-                .pipe(webpack.watch(webpackOptions, function(stream, err, stats) {
-                    stream
-                        .pipe(webpack.proxy(err, stats))
-                        .pipe(webpack.format({
-                            verbose: true,
-                            version: false
-                        }))
-                        .pipe(gulp.dest(dest));
-                }));
-        }
-    });
+gulp.task('html', function(){
+   return gulp.src('index.html')
+        .pipe(replace(/@@hash/g, Date.now()))
+        .pipe(gulp.dest('build'));
+});
+
+gulp.task('build', ['less', 'html']);
+
+gulp.task('default', ['webpack', 'less', 'html'], function() {
+    gulp.watch('less/**/*.less', ['less']);
+    gulp.watch('js/**/*.js', ['webpack']);
+    gulp.watch('index.html', ['html']);
 });

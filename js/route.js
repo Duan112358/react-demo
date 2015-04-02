@@ -1,17 +1,20 @@
-var React = require('react'),
-    {Route, DefaultRoute} = require('react-router');
+var React = require('react');
+var { DefaultRoute, Route, Link, RouteHandler} = require('react-router');
 
-var Intro = require('./views/intro');
-var Home = require('./views/home');
 var Index = require('./views/index');
-var Detail = require('./views/detail');
-var Result = require('./views/result');
+var CardBind = require('./views/cardbind');
+
+var App = React.createClass({
+    render: function(){
+        return <div className="app">
+            <RouteHandler/>      
+        </div>
+    }
+});
 
 module.exports = (
-    <Route handler={Index} path="/">
-        <DefaultRoute handler={Intro} name="intro"/>
-        <Route handler={Home} name="home"/>
-        <Route handler={Result} name="result"/>
-        <Route handler={Detail} name="detail" path="/:id"/>
+    <Route handler={App}>
+        <Route handler={CardBind} name="cardbind"/>
+        <DefaultRoute handler={Index}/>
     </Route>
 );
