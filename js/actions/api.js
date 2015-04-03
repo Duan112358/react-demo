@@ -12,16 +12,17 @@ var URLS = {
     cardsinfo: '/util/v1/cardsinfo',
     prepay: '/subscription/v1/plan/pay',
     //card_user,card_no,idnumber,issuerbank,brchbank_name
-    bindcard: '/subscription/v1/card/bind'
+    bindcard: '/subscription/v1/card/bind',
+    notify: '/subscription/v1/weixin/notify'
 };
 
 var Api = {
-    _data: {
-        caller: 'h5',
-        token: 'a6700fd21c9f4ea79c226d507eb26ff4'
-    },
+    _data: {},
     extend: function(data){
         data = data || {};
+        if(!this._data.caller){
+            this.get_config();
+        }
         data.caller = data.caller || this._data.caller;
         data.token = this._data.token;
         return data;
@@ -34,12 +35,12 @@ var Api = {
             .set('Content-Type', 'application/x-www-form-urlencoded')
             .set('Accept', 'application/json')
             .end(function(err, res){
-                that._callback(err, res, cb);
+                that._callback(res, cb);
             });
     },
-    _callback: function(err, res, cb){
-        if(err){
-            console.error(err);
+    _callback: function(res, cb){
+        if(res.status >= 400){
+           alert(res.status + ', 出错了...');
         }else{
            cb(res.body); 
         }
@@ -48,8 +49,8 @@ var Api = {
         var that = this;
         request.get(url)
             .query(that.extend(data))
-            .end(function(err, res){
-                that._callback(err, res, cb);
+            .end(function(res){
+                that._callback(res, cb);
             });
     },
     get_areacities: function(cb) {
@@ -78,12 +79,13 @@ var Api = {
     weixinpay: function(data, cb){
         var that = this;
         if(!that.isweixin()){
-            cb('请在微信中打开');
+            cb({error: '请在微信中打开'});
             return;
         }
         WeixinJSBridge.invoke('getBrandWCPayRequest',data.pay_params,function(res){
             if(res.err_msg == "get_brand_wcpay_request:ok"){
-                cb({success: true, error: false});
+                that.notify({order_id:data.order_id});
+                cb({success: '支付成功'});
             }else if(res.err_msg == "get_brand_wcpay_request:cancel") {
                 that.close_window();
             }else{
@@ -103,13 +105,19 @@ var Api = {
         that.post(URLS.prepay, data, cb);
     },
     get_config: function(){
-       var config = document.head.querySelector('meta[name=config]').getAttribute('content'); 
-       return JSON.parse(JSON.parse('"' + config + '"'));
+       if(!this._data.caller){
+           var config = document.head.querySelector('meta[name=config]').getAttribute('content'); 
+           this._data = JSON.parse(JSON.parse('"' + config + '"'));
+       }
+
+       return this._data;
     },
     bindcard: function(data, cb){
         var that = this;
-        data.caller = 'h5';
         that.post(URLS.bindcard, that.extend(data), cb);
+    },
+    notify: function(data){
+       this.get(URLS.notify, data);     
     }
 };
 

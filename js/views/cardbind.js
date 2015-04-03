@@ -5,8 +5,6 @@ var Api = require('../actions/api');
 
 var CardBind = React.createClass({
     mixins: [Api, Navigation],
-    componentDidMount: function(){
-    },
     componentWillMount: function(){
         var that = this;
         that.get_areacities(function(resp){
@@ -104,24 +102,20 @@ var CardBind = React.createClass({
         });
     },
     changeIDNum: function(e){
-        var target = e.target;
         var that = this;
+        var value = e.target.value;
 
-        var value = target.value;
-
-        if(value.length){
-            if(value.length > 18){
-                that.setState({
-                    idnumError: '身份证号码格式不正确'
-                });
-                return;
-            }
-            if(!/^\d{0,}(X|x|\d)$/.test(value)){
-                that.setState({
-                    idnumError: '身份证号码格式不正确'
-                });
-                return;
-            }
+        if(value && value.length > 18){
+            that.setState({
+                idnumError: '身份证号码格式不正确'
+            });
+            return;
+        }
+        if(value && !/^\d{0,}(X|x|\d)$/.test(value)){
+            that.setState({
+                idnumError: '身份证号码格式不正确'
+            });
+            return;
         }
 
         that.setState({
@@ -154,20 +148,20 @@ var CardBind = React.createClass({
                         });
                     }else{
                         that.setState({
-                            headbankNotFoundError: '未找到相关银行,请输入正确的银行卡号',
-                            headbankError: '未找到相关银行,请输入正确的银行卡号'
+                            bankaccountNotFoundError: '未找到相关银行,请输入正确的银行卡号',
+                            bankaccountError: '未找到相关银行,请输入正确的银行卡号'
                         });
                     }
                 }
             }) 
         }
         if(value && (!/^\d+$/.test(value) || value.length > 19)){
-            target.bankaccountError = that.headbankNotFoundError || '请输入正确的银行卡号';
+            target.bankaccountError = that.bankaccountNotFoundError || '请输入正确的银行卡号';
             hasError = true;
         }
 
         if(!hasError){
-            target.bankaccountError = that.headbankNotFoundError || false;
+            target.bankaccountError = that.bankaccountNotFoundError || false;
         }
 
         target.bankaccount = value;
@@ -226,6 +220,15 @@ var CardBind = React.createClass({
             return;
         }
 
+        if(!state.agree_privacy){
+            alert('请仔细阅读并同意支付协议');
+            return;
+        }
+
+        that.setState({
+            submitting: true
+        });
+
         that.bindcard({
             card_user: state.name,
             card_no: state.bankaccount,
@@ -248,6 +251,9 @@ var CardBind = React.createClass({
             }else{
                 alert(resp.resperr);
             } 
+            that.setState({
+                submitting: false
+            });
         });
     },
     getInitialState: function(){
@@ -273,6 +279,12 @@ var CardBind = React.createClass({
 
         target.name = value;
         that.setState(target);
+    },
+    onAgreePrivacy: function(e){
+        var value = e.target.checked;
+        this.setState({
+            agree_privacy: value
+        });
     },
     render: function(){
         var that = this;
@@ -302,7 +314,7 @@ var CardBind = React.createClass({
                 <div className="row">
                     <label className="label" htmlFor="bankaccount">银行卡号</label>
                     <span className="target">
-                        <input type="text" value={that.state.bankaccount} id="bankaccount" name="bankaccount" className="target-input" onChange={that.changeBankAccount}/>
+                        <input type="tel" value={that.state.bankaccount} id="bankaccount" name="bankaccount" className="target-input" onChange={that.changeBankAccount}/>
                     </span>
                 </div>
                 {that.state.bankaccountError ? <div className="error">{that.state.bankaccountError}</div> : false}
@@ -338,12 +350,12 @@ var CardBind = React.createClass({
             <div className="footer" ref="footer">
                 <div className="row">
                     <label className="note">
-                        <input type="checkbox" name="agree"/>
-                       <a href="#">已阅读并同意&lt;&lt;钱台交易云一键支付支付服务协议&gt;&gt;</a> 
+                       <label htmlFor="agree">已阅读并同意<input type="checkbox" name="agree" id="agree" onChange={that.onAgreePrivacy}/></label>
+                       <Link to="privacy">&lt;&lt;钱台交易云一键支付服务协议&gt;&gt;</Link> 
                     </label>
                 </div>
-                <button className="btn btn-primary text-center alert-bar" onTouchStart={that.submit}>
-                确认支付并开通
+                <button className="btn btn-primary text-center alert-bar" disabled={that.state.submitting ?'disabled': false} onTouchStart={that.submit}>
+                {that.state.submitting ? '支付处理中...' : '确认支付并开通'}
                 </button>
             </div>
         </div>

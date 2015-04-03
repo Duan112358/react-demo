@@ -19,20 +19,28 @@ var Index = React.createClass({
         container.style.paddingBottom = (footer.clientHeight + 20) + 'px';
     },
     pay: function(){
-        alert('prepay pay');
         var that = this;
+        that.setState({
+            submitting: true
+        });
+
         var config = that.state.config;
         config['pay_type'] = 2;
-        config.caller = 'h5';
         that.prepay(config, function(resp){
-            alert(JSON.stringify(resp));
             if(resp.respcd === '0000'){
                 that.weixinpay(resp.data, function(data){
-                    console.log(data);
+                    if(data.error){
+                        alert(data.error);
+                    }else{
+                        that.close_window();
+                    }
                 });
             }else{
                 alert(resp.resperr)
             }
+            that.setState({
+                submitting: false
+            });
         });
     },
     render: function(){
@@ -40,7 +48,7 @@ var Index = React.createClass({
         return <div className="index">
             <div className="container" ref="container">
                 <div className="app-logo">
-                    <img src="/static/img/oneapm.png" alt="logo"/>
+                    <img src={that.state.app_logo || '/static/img/oneapm.png'} alt="logo"/>
                 </div>
                 <div className="row payinfo">
                     <div className="label">
@@ -66,8 +74,8 @@ var Index = React.createClass({
                 <p className="app-desc text-info">
                     每月均需手工在线支付
                 </p>
-                <button className="btn btn-primary text-center alert-bar" onTouchStart={that.pay}>
-                    微信支付
+                <button className="btn btn-primary text-center alert-bar" onTouchStart={that.pay} disabled={that.state.submitting ? 'disabled': false}>
+                    {that.state.submitting ? '支付处理中...' : '微信支付'}
                 </button>
             </div>
         </div>;

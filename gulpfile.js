@@ -37,7 +37,7 @@ gulp.task('webpack', function() {
 gulp.task('less', function(){
     return gulp.src('less/app.less')
         .pipe(less())
-        //.pipe(cssmin())
+        .pipe(cssmin())
         .pipe(gulp.dest('build/static/css'));
 });
 
