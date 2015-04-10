@@ -3,12 +3,6 @@ var React = require('react');
 var Privacy = React.createClass({
     render: function(){
         return <div className="privacy">
-            <div className="text-center header">
-                <a href="#/cardbind" className="back-link">
-                    <img className="back" src="/static/img/back.svg"/>
-                </a>
-                <span>钱台交易云</span>
-            </div>
             <div className="container">
                 <h2 className="text-center">
                     钱台交易云支付协议

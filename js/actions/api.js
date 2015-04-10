@@ -1,4 +1,5 @@
 var request = require('superagent');
+var Alert = require('./alert');
 var store = require('./store');
 
 var URLS = {
@@ -40,7 +41,7 @@ var Api = {
     },
     _callback: function(res, cb){
         if(res.status >= 400){
-           alert(res.status + ', 出错了...');
+           Alert.error(res.status + ', 出错了...');
         }else{
            cb(res.body); 
         }
@@ -87,8 +88,9 @@ var Api = {
                 that.notify({order_id:data.order_id});
                 cb({success: '支付成功'});
             }else if(res.err_msg == "get_brand_wcpay_request:cancel") {
-                that.close_window();
+                cb({error: '支付已取消'})
             }else{
+                Alert.error(res.err_msg);
                 cb({error: '微信系统繁忙'});
             }
         });
@@ -107,7 +109,9 @@ var Api = {
     get_config: function(){
        if(!this._data.caller){
            var config = document.head.querySelector('meta[name=config]').getAttribute('content'); 
+           var static_url = document.head.querySelector('meta[name=static]').getAttribute('content'); 
            this._data = JSON.parse(JSON.parse('"' + config + '"'));
+           this._data.static_url = static_url;
        }
 
        return this._data;

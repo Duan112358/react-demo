@@ -1,10 +1,15 @@
 var React = require('react');
 var { Link, Navigation } = require('react-router');
 var Select = require('../components/select');
+var Classable = require('../components/classable');
+var Input = require('../components/input');
+var Checkbox = require('../components/checkbox');
+var Alert = require('../actions/alert');
 var Api = require('../actions/api');
+var Store = require('../actions/store');
 
 var CardBind = React.createClass({
-    mixins: [Api, Navigation],
+    mixins: [Api, Navigation, Alert, Classable],
     componentWillMount: function(){
         var that = this;
         that.get_areacities(function(resp){
@@ -23,15 +28,9 @@ var CardBind = React.createClass({
                 console.log(resp.resperr);
             } 
         });
-
-        that.get_headbanks(function(resp){
-            if(resp.respcd === '0000'){
-                var headbanks = that.mapper(resp.data.records, 'headbankname', 'headbankid');
-                that.setState({
-                    headbanks: headbanks
-                });
-            }
-        });
+    },
+    componentWillUnmount: function(){
+        Store.set('__card_info__', JSON.stringify(this.state));
     },
     mapper: function(records, label, value){
         if(records.length){
@@ -42,6 +41,7 @@ var CardBind = React.createClass({
                 };
             });
         }
+        return [];
     },
     onSelectProvince: function(provinceId){
         var that = this;
@@ -49,11 +49,13 @@ var CardBind = React.createClass({
             return p.value == provinceId;
         })[0];
 
-
         var cities = province.cities;
         that.setState({
             province: province,
-            provinceError: false
+            provinceError: false,
+            city: {},
+            cityError: false,
+            branchbanks: []
         });
     },
     onSelectCity: function(cityid){
@@ -61,44 +63,33 @@ var CardBind = React.createClass({
         var city = that.state.province.cities.filter(function(c){
             return c.value == cityid;
         })[0];
+
         that.setState({
             city: city,
             cityError: false,
-            showheadbanks: true
-        });
-
-        if(that.state.disableheadbank){
-            that.get_branchbanks({
-                cityid: city.value,
-                headbankid: that.state.headbank.value
-            }, function(resp){
-                if(resp.respcd === '0000'){
-                    that.setState({
-                        branchbanks: that.mapper(resp.data.records, 'name')
-                    });
-                } 
-            });
-        }
-    },
-    onSelectHeadbank: function(headbankid){
-        var that = this;
-        var headbank = that.state.headbanks.filter(function(c){
-            return c.value == headbankid;
-        })[0];
-        that.setState({
-            headbank: headbank,
-            headbankError: false
+            branchbanks: []
         });
 
         that.get_branchbanks({
-            cityid: that.state.city.value,
-            headbankid: headbank.value
+            cityid: city.value,
+            headbankid: that.state.headbank.value
         }, function(resp){
             if(resp.respcd === '0000'){
                 that.setState({
-                    branchbanks: that.mapper(resp.data.records, 'name')
+                    branchbanks: that.mapper(resp.data.records, 'name'),
+                    branchbankError: resp.data.records.length ? false : '该地区暂时没有当前银行支行网点'
                 });
             } 
+        });
+    },
+    onSelectBranchbank: function(branchbankId){
+        var that = this;
+        var branchbank = that.state.branchbanks.filter(function(c){
+            return c.value == branchbankId;
+        })[0];
+        that.setState({
+            branchbank: branchbank,
+            branchbankError: false
         });
     },
     changeIDNum: function(e){
@@ -141,17 +132,29 @@ var CardBind = React.createClass({
                         headbank.value = headbank.headbankid;
                         that.setState({
                             headbank: headbank,
-                            showheadbanks: true,
-                            disableheadbank: true,
-                            headbankError: false,
                             headbankNotFoundError: false
                         });
+                        if(that.state.city.label){
+                            that.get_branchbanks({
+                                cityid: that.state.city.value,
+                                headbankid: headbank.value
+                            }, function(result){
+                                if(result.respcd === '0000'){
+                                    that.setState({
+                                        branchbanks: that.mapper(result.data.records, 'name'),
+                                        branchbankError: result.data.records.length ? false : '该地区暂时没有当前银行支行网点'
+                                    });
+                                } 
+                            });
+                        }
                     }else{
                         that.setState({
                             bankaccountNotFoundError: '未找到相关银行,请输入正确的银行卡号',
                             bankaccountError: '未找到相关银行,请输入正确的银行卡号'
                         });
                     }
+                }else{
+                    that.error(resp.resperr);
                 }
             }) 
         }
@@ -167,16 +170,6 @@ var CardBind = React.createClass({
         target.bankaccount = value;
         that.setState(target);
 
-    },
-    onSelectBranchbank: function(branchbankId){
-        var that = this;
-        var branchbank = that.state.branchbanks.filter(function(c){
-            return c.value == branchbankId;
-        })[0];
-        that.setState({
-            branchbank: branchbank,
-            branchbankError: false
-        });
     },
     submit: function(){
         var that = this;   
@@ -210,8 +203,12 @@ var CardBind = React.createClass({
             }
         }
 
-        if(!state.branchbank.label && state.headbank.label){
-            target.branchbankError = '请选择支行';
+        if(!state.branchbank.label){
+            if(!state.province.label || !state.city.label){
+                target.branchbankError = '请先选择省份和城市,然后选择当地支行';
+            }else{
+                target.branchbankError = '请选择支行';
+            }
             hasError = true;
         }
 
@@ -221,7 +218,7 @@ var CardBind = React.createClass({
         }
 
         if(!state.agree_privacy){
-            alert('请仔细阅读并同意支付协议');
+            this.warning('请仔细阅读并同意支付协议');
             return;
         }
 
@@ -242,14 +239,16 @@ var CardBind = React.createClass({
                 config.card_id = resp.data.card_id;
                 that.prepay(config, function(data){
                    if(data.respcd === '0000'){
-                        alert('银行卡代付支付绑定成功')
-                        that.close_window();
+                       that.applySuccess(config.order_syssn, config.order_amount, function(){
+                           that.close_window();
+                       })
                    }else{
-                       alert(data.resperr);
+                       that.error(data.resperr);
                    }
                 });
+                Store.remove('__card_info__');
             }else{
-                alert(resp.resperr);
+                that.error(resp.resperr);
             } 
             that.setState({
                 submitting: false
@@ -257,12 +256,16 @@ var CardBind = React.createClass({
         });
     },
     getInitialState: function(){
+        if(Store.get('__card_info__')){
+            var data = JSON.parse(Store.get('__card_info__'));
+            return data;
+        }
+
         return {
             provinces: [],
             province: {},
             cities: [],
             city: {},
-            headbanks: [],
             headbank: {},
             branchbanks: [],
             branchbank: {}
@@ -282,79 +285,55 @@ var CardBind = React.createClass({
     },
     onAgreePrivacy: function(e){
         var value = e.target.checked;
+        var orderinfo = this.get_config();
         this.setState({
             agree_privacy: value
         });
     },
+    init: function(){
+        var container = this.refs.container.getDOMNode();
+        var bottom = this.refs.bottom.getDOMNode();
+
+        var windowHeight = document.body.clientHeight;
+        var containerHeight = container.clientHeight;
+        var bottomHeight = bottom.clientHeight;
+
+        var remaining = (windowHeight - containerHeight - bottomHeight - 32);
+
+        if(remaining > 0){
+            bottom.style.marginTop = remaining + 'px';
+        }
+    },
+    componentDidMount: function(){
+        this.init();
+    },
     render: function(){
         var that = this;
-
+        var headbankinfo = that.state.headbank.headbankname ? that.state.headbank.headbankname + '   ' + that.state.headbank.cardtype : false;
         return <div className="cardbind">
-            <div className="text-center header">
-                <a href="#/" className="back-link">
-                    <img className="back" src="/static/img/back.svg"/>
-                </a>
-                <span>一键支付</span>
-            </div>
             <div className="container" ref="container">
-                <div className="row">
-                    <label className="label" htmlFor="name">姓名</label>
-                    <span className="target">
-                        <input type="text" id="name" name="name" className="target-input" onChange={that.changeName}/>
-                    </span>
-                </div>
-                {that.state.nameError ? <div className="error">{that.state.nameError}</div> : false}
-                <div className="row">
-                    <label className="label" htmlFor="idnum">身份证号</label>
-                    <span className="target">
-                        <input type="text" id="idnum" name="idnum" className="target-input" onChange={that.changeIDNum}/>
-                    </span>
-                </div>
-                {that.state.idnumError ? <div className="error">{that.state.idnumError}</div> : false}
-                <div className="row">
-                    <label className="label" htmlFor="bankaccount">银行卡号</label>
-                    <span className="target">
-                        <input type="tel" value={that.state.bankaccount} id="bankaccount" name="bankaccount" className="target-input" onChange={that.changeBankAccount}/>
-                    </span>
-                </div>
-                {that.state.bankaccountError ? <div className="error">{that.state.bankaccountError}</div> : false}
+                <Input name="name" id="name" value={that.state.name} onChange={that.changeName} error={that.state.nameError} type="text" label="姓名"/>                
+                <Input name="idnum" id="idnum" value={that.state.idnum} onChange={that.changeIDNum} error={that.state.idnumError} type="text" label="身份证号"/>                
+                <Input name="bankaccount" id="bankaccount" value={that.state.bankaccount} onChange={that.changeBankAccount} error={that.state.bankaccountError} desc={headbankinfo} type="tel" label="银行卡号"/>                
                 <div className="row select">
-                    <label className="label" htmlFor="provinces">省份</label>
-                    <span className="target">
-                        <Select name="provinces" id="provinces" value={that.state.province.label} options={that.state.provinces} onChange={that.onSelectProvince} placeholder="请选择省份" noResultsText="无数据"/>
+                    <span className="cell first">
+                        <Select name="provinces" id="provinces" clearable={false} value={that.state.province.label} options={that.state.provinces} onChange={that.onSelectProvince} placeholder="请选择省份" noResultsText="无数据" searchable="false"/>
+                    </span>
+                    <span className="cell second">
+                        <Select name="city" clearable={false} id="cities" value={that.state.city.label} options={that.state.province.cities} clearable={false} onChange={that.onSelectCity} placeholder="请选择城市" noResultsText="无数据" searchable="false"/>
                     </span>
                 </div>
-                {that.state.provinceError ? <div className="error">{that.state.provinceError}</div>:false}
-                {that.state.province.label ? <div className="row select">
-                    <label className="label" htmlFor="city">城市</label>
-                    <span className="target">
-                        <Select name="city" id="cities" value={that.state.city.label} options={that.state.province.cities} onChange={that.onSelectCity} placeholder="请选择城市" noResultsText="无数据"/>
-                    </span>
-                </div> : false}
-                {that.state.cityError ? <div className="error">{that.state.cityError}</div>:false}
-                {that.state.showheadbanks ? <div className="row select">
-                    <label className="label" htmlFor="headbanks">银行</label>
-                    <span className="target">
-                        <Select name="headbank" disabled={that.state.disableheadbank} id="headbanks" value={that.state.headbank.label} options={that.state.headbanks} onChange={that.onSelectHeadbank} placeholder="请选择银行" noResultsText="无数据"/>
-                    </span>
-                </div> : false}
-                {that.state.headbankError ? <div className="error">{that.state.headbankError}</div>:false}
-                {that.state.branchbanks.length ? <div className="row select">
-                    <label className="label" htmlFor="branchbank">银行支行</label>
-                    <span className="target">
-                        <Select name="branchbank" id="branchbank" value={that.state.branchbank.label} options={that.state.branchbanks} onChange={that.onSelectBranchbank} placeholder="请选择支行" noResultsText="无数据"/>
-                    </span>
-                </div> : false}
-                {that.state.branchbankError ? <div className="error">{that.state.branchbankError}</div>:false}
+                <div className={that.getClasses('row select', {'error': that.state.branchError})}>
+                    <Select name="branchbank" id="branchbank" clearable={false} value={that.state.branchbank.label} options={that.state.branchbanks} onChange={that.onSelectBranchbank} placeholder="请选择支行" noResultsText="无数据"/>
+                    {that.state.branchbankError ? <div className="error">{that.state.branchbankError}</div>:false}
+                </div>
             </div>
-            <div className="footer" ref="footer">
-                <div className="row">
-                    <label className="note">
-                       <label htmlFor="agree">已阅读并同意<input type="checkbox" name="agree" id="agree" onChange={that.onAgreePrivacy}/></label>
-                       <Link to="privacy">&lt;&lt;钱台交易云一键支付服务协议&gt;&gt;</Link> 
-                    </label>
-                </div>
-                <button className="btn btn-primary text-center alert-bar" disabled={that.state.submitting ?'disabled': false} onTouchStart={that.submit}>
+            <div ref="bottom" className="bottom">
+                <Checkbox checked={that.state.agree_privacy} id="agree" name="agree" onChange={that.onAgreePrivacy}>
+                   已阅读并同意
+                   <Link to="privacy">{'《'}钱台交易云支付服务协议{'》'}</Link> 
+                </Checkbox>
+                <button className="btn btn-primary text-center alert-bar" disabled={that.state.submitting ?'disabled': false} onClick={that.submit}>
                 {that.state.submitting ? '支付处理中...' : '确认支付并开通'}
                 </button>
             </div>

@@ -7,8 +7,11 @@ var path = require('path'),
     cssmin = require('gulp-minify-css'),
     webpack = require('gulp-webpack-build');
 
+var config = require('./config.json');
+var webpackConfig = require('./webpack.config.js');
+
 var src = './',
-    dest = 'build/static/js',
+    dest = 'build' + config.static + '/js',
     webpackOptions = {
         watchDelay: 200,
         isConfigFile: function(file) {
@@ -31,25 +34,34 @@ gulp.task('webpack', function() {
             errors: true,
             warnings: true
         }))
-        .pipe(gulp.dest(dest));
+        .pipe(replace(/@@static/g, config.static))
+        .pipe(gulp.dest('.'));
+});
+
+// Production build
+gulp.task("build", ["less", "html", "img"]);
+
+gulp.task("img", function(){
+    gulp.src(['img/**/*.png', 'img/**/*.svg', 'img/**/*.jpg'])
+    .pipe(gulp.dest('build' + config.static + '/img'));
 });
 
 gulp.task('less', function(){
     return gulp.src('less/app.less')
         .pipe(less())
+        .pipe(replace(/@@static/g, config.static))
         .pipe(cssmin())
-        .pipe(gulp.dest('build/static/css'));
+        .pipe(gulp.dest('build' + config.static + '/css'));
 });
 
 gulp.task('html', function(){
    return gulp.src('index.html')
         .pipe(replace(/@@hash/g, Date.now()))
+        .pipe(replace(/@@static/g, config.static))
         .pipe(gulp.dest('build'));
 });
 
-gulp.task('build', ['less', 'html']);
-
-gulp.task('default', ['webpack', 'less', 'html'], function() {
+gulp.task('default', ['webpack', 'less', 'html', 'img'], function() {
     gulp.watch('less/**/*.less', ['less']);
     gulp.watch('js/**/*.js', ['webpack']);
     gulp.watch('index.html', ['html']);

@@ -1,14 +1,16 @@
 var webpack = require('webpack');
+var config = require('./config.json');
+
+console.log(config);
 
 module.exports = {
     entry: {
         app: './js/app',
-        vendor: ['react', 'superagent']
+        vendor: ['react', 'superagent', 'sweetalert']
     },
     output: {
-        path: 'build/static/js/',
-        filename: 'app.js',
-        publicPath: '/static/js/'
+        path: 'build' + config.static + '/js/',
+        filename: 'app.js'
     },
     module: {
         loaders: [{

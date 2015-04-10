@@ -1,7 +1,7 @@
 html, body{
     height: 100%;
     width: 100%;
-    background-color: #efefef;
+    background-color: white;
     position: relative;
 }
 .relative {
@@ -51,94 +51,27 @@ html[xmlns] .clearfix {
     border: none;
     box-shadow: none;
     outline: none;
-    line-height: 30px;
     text-decoration: none;
-}
-.btn-block {
+    font-size: 18px;
+    line-height: 48px;
+    border-radius: 2px;
     display: block;
-    width: 100%;
+    width: 90%;
+    padding: 0;
+    margin: 20px auto;
 }
 .btn-info {
-    .btn(@info);
+    .btn(@green);
+    &:focus {
+        color: white;
+        background-color: @green;
+    }
 }
 .btn-primary{
-    .btn(@primary);
-}
-.footer {
-    position: absolute;
-    bottom: 0;
-    width: 100%;
-}
-.header {
-    line-height: 48px;
-    height: 48px;
-    font-size: 18px;
-    background-color: @info;
-    width: 100%;
-    .back-link {
-        display: inline-block;
-        overflow: hidden;
-        float: left;
-        line-height: 48px;
-        height: 48px;
-        .back {
-            height: 24px;
-            margin-top: 12px;
-            margin-left: 12px;
-        }
-    }
-    .back-link ~ span {
-        margin-left: -30px;
-        color: white;
-    }
-}
-@-webkit-keyframes pulse {
-    50% {
-        opacity: .25;
-    }
-}
-@keyframes pulse {
-    50% {
-        opacity: .25;
-    }
-}
-.alert-bar {
-    position: relative;
-    &:after {
-        -webkit-animation: pulse 2s linear infinite;
-        -o-animation: pulse 2s linear infinite;
-        animation: pulse 2s linear infinite;
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        background-color: black;
-        content: "";
-        opacity: 0;
-        z-index: 1;
-    }
-}
-.table {
-    text-decoration: none;
-    width: 100%;
-    display: table;
-    padding-top: 20px;
-    padding-bottom: 5px;
-    color: rgb(85, 89, 92);
-    .table-cell {
-        display: table-cell;
-        vertical-align: middle;
-        &:first-child {
-            width: 130px;
-        }
-        &:last-child {
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgb(219, 219, 219);
-        }
-        &.last {
-            border-bottom: none;
-        }
-    }
+    .btn(@blue);
 }
 
+.bottom {
+    margin-bottom: 32px;
+    overflow: hidden;
+}

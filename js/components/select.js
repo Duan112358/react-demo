@@ -119,10 +119,12 @@ var Select = React.createClass({
 
 		this._bindCloseMenuIfClickedOutside = function() {
 			document.addEventListener('click', this._closeMenuIfClickedOutside);
+			document.addEventListener('touchend', this._closeMenuIfClickedOutside);
 		};
 
 		this._unbindCloseMenuIfClickedOutside = function() {
 			document.removeEventListener('click', this._closeMenuIfClickedOutside);
+			document.removeEventListener('touchend', this._closeMenuIfClickedOutside);
 		};
 	},
 
@@ -307,6 +309,11 @@ var Select = React.createClass({
 		if (this.props.onFocus) {
 			this.props.onFocus(event);
 		}
+
+        if(this.props.searchable == 'false'){
+            console.log('blur out');
+            event.target.blur();
+        }
 	},
 
 	handleInputBlur: function(event) {

@@ -1,24 +1,17 @@
 .cardbind {
     .container{
         padding: 0 5%;
+        padding-top: 55px;
     }
-    .app-title {
-        font-size: 45px;
-        font-weight: 600;
-        color: @info;
-        line-height: 45px;
+
+    .form-group {
         margin-bottom: 30px;
+
+        &.error{
+            margin-bottom: 12px;
+        }
     }
-    .app-logo > img {
-        display: block;
-        margin: 0 auto;
-        width: 100px;
-    }
-    .app-desc {
-        margin-top: 30px;
-        color: rgb(0, 187, 210);
-        line-height: 48px;
-    }
+
     .btn-info {
         margin-bottom: 5px;
         font-size: 20px;
@@ -31,11 +24,21 @@
     }
 
     .row{
-        margin: 10px auto 0 auto;
+        margin: 10px auto 30px auto;
+        width: 100%;
+        table-layout: fixed;
 
-        &.select{
-            margin-top: 0;
+        .cell{
+            display: table-cell;
         }
+
+        .cell.first .Select{
+            margin-right: 10px;
+        }
+        .cell.second .Select{
+            margin-left: 10px;
+        }
+       
     }
 
     .label{
@@ -44,9 +47,23 @@
 
     .error{
         color: red;
-        font-size: 13px;
-        text-align: center;
+        font-size: 12px;
+    }
+
+    .desc{
+        color: #6BAAF3;
+        font-size: 12px;
+    }
+
+    .bankaccount-info{
         margin-top: 10px;
+        font-size: 13px;
+        .cardtype, .headbank{
+            border-radius: 5px;
+            padding: 2px 5px;
+            background-color: @primary;
+            color: white;
+        }
     }
 
     .target-input{
@@ -76,19 +93,9 @@
     }
 
     .btn{
-        font-size: 18px;
-        line-height: 48px;
-        letter-spacing: .2em;
-        display: block;
-        width: 90%;
-        margin: 10px auto;
+        margin: 20px auto 0;
     }
 
-    .note{
-        font-size: 12px;
-        display: block;
-        text-align: center;
-    }
     .row {
         display: table;
         vertical-align: middle;

@@ -1,55 +1,67 @@
+.app{
+    position: relative;
+    min-height: 100%;
+}
+
 .index {
-    background-color: #efefef;
-
-    .container{
-        padding: 0 5%;
-    }
-
     .app-logo{
         padding: 30px 0;
+        text-align: center;
+        background-color: #5e6772;
+        margin-bottom: 30px;
+        font-weight: 300;
+
+        .app-name{
+            color: white;
+            margin-top: 20px;
+        }
+
+        img{
+            display: block;
+            margin: 0 auto;
+            width: 100px;
+            color: white;
+        }
     }
-    .app-logo > img{
-        display: block;
+
+    .h3 {
+        border-top: 1px solid #BCBCBC;
+        padding-top: 30px;
+        width: 90%;
         margin: 0 auto;
-        width: 100px;
-        color: white;
     }
 
     .app-desc{
-        color: @info;
+        color: #b9b9b9;
         font-size: 14px;
         line-height: 20px;
+        padding: 10px 5%;
     }
 
-    .h3, .app-desc{
-        padding: 0 5%;
+    .btn-info{
+        margin-bottom: 32px;
     }
 
-    .btn{
-        font-size: 18px;
-        line-height: 48px;
-        letter-spacing: .2em;
-        display: block;
-        width: 90%;
-        margin: 10px auto;
-    }
-
-    .footer{
-        margin-bottom: 10px;
-    }
     .row {
+        margin-left: 5%;
+        margin-right: 5%;
         display: table;
         vertical-align: top;
         .label {
             display: table-cell;
-            color: rgb(85, 89, 92);
-            font-size: 14px;
-            width: 200px;
+            width: 5em;
         }
         .target {
             display: table-cell;
-            width: 70%;
-            color: @info;
+            color: #505563;
+
+            .item {
+                line-height: 30px;
+            }
+        }
+
+        &.order-info{
+            padding-bottom: 24px;
         }
     }
 }
