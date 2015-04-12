@@ -3,12 +3,6 @@ var Classable = require('./classable');
 
 module.exports = React.createClass({
     displayName: 'Checkbox',
-    propTypes: {
-        id: React.PropTypes.string.required,
-        name: React.PropTypes.string.required,
-        label: React.PropTypes.string.required,
-        onChange: React.PropTypes.func
-    },
     getDefaultProps: function(){
         return {
             onChange: function(){}

@@ -5,14 +5,8 @@ module.exports = React.createClass({
     displayName: 'Input',
     mixins: [Classable],
     propTypes: {
-        id: React.PropTypes.string,
-        name: React.PropTypes.string.isRequired,
-        label: React.PropTypes.string.isRequired,
-        type: React.PropTypes.string.isRequired,
-        value: React.PropTypes.string,
-        error: React.PropTypes.string,
-        desc: React.PropTypes.string,
-        onChange: React.PropTypes.func.isRequired
+        error: React.PropTypes.any,
+        desc: React.PropTypes.any
     },
     getInitialState: function(){
         return {

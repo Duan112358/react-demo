@@ -317,10 +317,10 @@ var CardBind = React.createClass({
                 <Input name="bankaccount" id="bankaccount" value={that.state.bankaccount} onChange={that.changeBankAccount} error={that.state.bankaccountError} desc={headbankinfo} type="tel" label="银行卡号"/>                
                 <div className="row select">
                     <span className="cell first">
-                        <Select name="provinces" id="provinces" clearable={false} value={that.state.province.label} options={that.state.provinces} onChange={that.onSelectProvince} placeholder="请选择省份" noResultsText="无数据" searchable="false"/>
+                        <Select name="provinces" id="provinces" clearable={false} value={that.state.province.label} options={that.state.provinces} onChange={that.onSelectProvince} placeholder="请选择省份" noResultsText="无数据" searchable={false}/>
                     </span>
                     <span className="cell second">
-                        <Select name="city" clearable={false} id="cities" value={that.state.city.label} options={that.state.province.cities} clearable={false} onChange={that.onSelectCity} placeholder="请选择城市" noResultsText="无数据" searchable="false"/>
+                        <Select name="city" clearable={false} id="cities" value={that.state.city.label} options={that.state.province.cities} clearable={false} onChange={that.onSelectCity} placeholder="请选择城市" noResultsText="无数据" searchable={false}/>
                     </span>
                 </div>
                 <div className={that.getClasses('row select', {'error': that.state.branchError})}>

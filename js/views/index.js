@@ -3,6 +3,11 @@ var {RouteHandler, Link, Navigation} = require('react-router');
 var Api = require('../actions/api');
 var Alert = require('../actions/alert');
 
+var logo = Api.get_config().app_logo;
+if(!logo){
+    logo = require('../../img/oneapm.png');
+}
+
 var Index = React.createClass({
     mixins: [Api, Alert],
     componentWillMount: function(){
@@ -59,7 +64,7 @@ var Index = React.createClass({
         return <div className="index">
             <div className="container" ref="container">
                 <div className="app-logo">
-                    <img src={that.state.app_logo || (that.state.config.static_url+'/img/oneapm.png')} alt="logo"/>
+                    <img src={logo} alt="logo"/>
                     <div className="app-name">
                         收款方: {that.state.config.app_name || 'ONEAPM'}
                     </div>

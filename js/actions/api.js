@@ -109,9 +109,7 @@ var Api = {
     get_config: function(){
        if(!this._data.caller){
            var config = document.head.querySelector('meta[name=config]').getAttribute('content'); 
-           var static_url = document.head.querySelector('meta[name=static]').getAttribute('content'); 
            this._data = JSON.parse(JSON.parse('"' + config + '"'));
-           this._data.static_url = static_url;
        }
 
        return this._data;

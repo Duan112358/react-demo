@@ -1,8 +1,6 @@
 var webpack = require('webpack');
 var config = require('./config.json');
 
-console.log(config);
-
 module.exports = {
     entry: {
         app: './js/app',
