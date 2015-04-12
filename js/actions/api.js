@@ -90,7 +90,6 @@ var Api = {
             }else if(res.err_msg == "get_brand_wcpay_request:cancel") {
                 cb({error: '支付已取消'})
             }else{
-                Alert.error(res.err_msg);
                 cb({error: '微信系统繁忙'});
             }
         });
